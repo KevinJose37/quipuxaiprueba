@@ -1,19 +1,16 @@
-import { LayoutDashboard, FileText, Users, ShieldCheck, XOctagon, Workflow, ScrollText, Settings, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { LayoutDashboard, FileText, Users, ShieldCheck, XOctagon, ScrollText, Sparkles } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
 const items = [
-  { icon: LayoutDashboard, label: "Dashboard", active: true },
-  { icon: FileText, label: "Facturas" },
-  { icon: Users, label: "Proveedores" },
-  { icon: ShieldCheck, label: "Validaciones" },
-  { icon: XOctagon, label: "Rechazos" },
-  { icon: Workflow, label: "Automatizaciones" },
-  { icon: ScrollText, label: "Logs" },
-  { icon: Settings, label: "Configuración" },
+  { icon: LayoutDashboard, label: "Dashboard", to: "/" as const },
+  { icon: FileText, label: "Facturas", to: "/facturas" as const },
+  { icon: Users, label: "Proveedores", to: "/proveedores" as const },
+  { icon: ShieldCheck, label: "Validaciones", to: "/validaciones" as const },
+  { icon: XOctagon, label: "Rechazos", to: "/rechazos" as const },
+  { icon: ScrollText, label: "Logs", to: "/logs" as const },
 ];
 
 export function Sidebar() {
-  const [active, setActive] = useState("Dashboard");
   return (
     <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r border-border bg-sidebar text-sidebar-foreground">
       <div className="px-6 py-6 flex items-center gap-2.5 border-b border-sidebar-border">
@@ -29,21 +26,21 @@ export function Sidebar() {
       <nav className="flex-1 p-3 space-y-1">
         {items.map((it) => {
           const Icon = it.icon;
-          const isActive = active === it.label;
           return (
-            <button
+            <Link
               key={it.label}
-              onClick={() => setActive(it.label)}
-              className={`w-full group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                isActive
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-[inset_0_1px_0_oklch(1_0_0/8%)]"
-                  : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-foreground"
-              }`}
+              to={it.to}
+              activeOptions={{ exact: it.to === "/" }}
+              className="w-full group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-muted-foreground hover:bg-sidebar-accent/60 hover:text-foreground data-[status=active]:bg-sidebar-accent data-[status=active]:text-sidebar-accent-foreground data-[status=active]:shadow-[inset_0_1px_0_oklch(1_0_0/8%)]"
             >
-              <Icon className={`h-4 w-4 ${isActive ? "text-primary" : ""}`} strokeWidth={2} />
-              <span>{it.label}</span>
-              {isActive && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary animate-pulse-dot" />}
-            </button>
+              {({ isActive }) => (
+                <>
+                  <Icon className={`h-4 w-4 ${isActive ? "text-primary" : ""}`} strokeWidth={2} />
+                  <span>{it.label}</span>
+                  {isActive && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary animate-pulse-dot" />}
+                </>
+              )}
+            </Link>
           );
         })}
       </nav>
