@@ -9,9 +9,33 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ValidacionesRouteImport } from './routes/validaciones'
+import { Route as RechazosRouteImport } from './routes/rechazos'
+import { Route as ProveedoresRouteImport } from './routes/proveedores'
+import { Route as LogsRouteImport } from './routes/logs'
 import { Route as FacturasRouteImport } from './routes/facturas'
 import { Route as IndexRouteImport } from './routes/index'
 
+const ValidacionesRoute = ValidacionesRouteImport.update({
+  id: '/validaciones',
+  path: '/validaciones',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RechazosRoute = RechazosRouteImport.update({
+  id: '/rechazos',
+  path: '/rechazos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProveedoresRoute = ProveedoresRouteImport.update({
+  id: '/proveedores',
+  path: '/proveedores',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LogsRoute = LogsRouteImport.update({
+  id: '/logs',
+  path: '/logs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FacturasRoute = FacturasRouteImport.update({
   id: '/facturas',
   path: '/facturas',
@@ -26,31 +50,94 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/facturas': typeof FacturasRoute
+  '/logs': typeof LogsRoute
+  '/proveedores': typeof ProveedoresRoute
+  '/rechazos': typeof RechazosRoute
+  '/validaciones': typeof ValidacionesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/facturas': typeof FacturasRoute
+  '/logs': typeof LogsRoute
+  '/proveedores': typeof ProveedoresRoute
+  '/rechazos': typeof RechazosRoute
+  '/validaciones': typeof ValidacionesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/facturas': typeof FacturasRoute
+  '/logs': typeof LogsRoute
+  '/proveedores': typeof ProveedoresRoute
+  '/rechazos': typeof RechazosRoute
+  '/validaciones': typeof ValidacionesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/facturas'
+  fullPaths:
+    | '/'
+    | '/facturas'
+    | '/logs'
+    | '/proveedores'
+    | '/rechazos'
+    | '/validaciones'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/facturas'
-  id: '__root__' | '/' | '/facturas'
+  to:
+    | '/'
+    | '/facturas'
+    | '/logs'
+    | '/proveedores'
+    | '/rechazos'
+    | '/validaciones'
+  id:
+    | '__root__'
+    | '/'
+    | '/facturas'
+    | '/logs'
+    | '/proveedores'
+    | '/rechazos'
+    | '/validaciones'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FacturasRoute: typeof FacturasRoute
+  LogsRoute: typeof LogsRoute
+  ProveedoresRoute: typeof ProveedoresRoute
+  RechazosRoute: typeof RechazosRoute
+  ValidacionesRoute: typeof ValidacionesRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/validaciones': {
+      id: '/validaciones'
+      path: '/validaciones'
+      fullPath: '/validaciones'
+      preLoaderRoute: typeof ValidacionesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rechazos': {
+      id: '/rechazos'
+      path: '/rechazos'
+      fullPath: '/rechazos'
+      preLoaderRoute: typeof RechazosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/proveedores': {
+      id: '/proveedores'
+      path: '/proveedores'
+      fullPath: '/proveedores'
+      preLoaderRoute: typeof ProveedoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/logs': {
+      id: '/logs'
+      path: '/logs'
+      fullPath: '/logs'
+      preLoaderRoute: typeof LogsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/facturas': {
       id: '/facturas'
       path: '/facturas'
@@ -71,6 +158,10 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FacturasRoute: FacturasRoute,
+  LogsRoute: LogsRoute,
+  ProveedoresRoute: ProveedoresRoute,
+  RechazosRoute: RechazosRoute,
+  ValidacionesRoute: ValidacionesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
