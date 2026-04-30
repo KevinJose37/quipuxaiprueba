@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Send, X, Sparkles } from "lucide-react";
 import { InntiIcon } from "./InntiIcon";
+import { API_BASE } from "@/lib/api";
 
 interface Message {
   id: string;
@@ -54,7 +55,7 @@ export function ChatPanel({ open, onClose }: Props) {
 
     try {
       const history = [...messages, userMsg].map(({ role, content }) => ({ role, content }));
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/chat`, {
+      const res = await fetch(`${API_BASE}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: history }),
