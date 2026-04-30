@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Building2, Plus, Search } from "lucide-react";
 import { PageShell } from "@/components/dashboard/PageShell";
-import { providers } from "@/components/dashboard/data";
+import { useProveedores } from "@/hooks/use-proveedores";
 
 export const Route = createFileRoute("/proveedores")({
   component: ProveedoresPage,
@@ -26,9 +26,10 @@ const statusLabel: Record<string, string> = {
 };
 
 function ProveedoresPage() {
-  const total = providers.length;
-  const active = providers.filter((p) => p.status === "active").length;
-  const avgRate = (providers.reduce((a, b) => a + b.validRate, 0) / providers.length).toFixed(1);
+  const { data, isLoading } = useProveedores();
+
+  const providers = data?.providers ?? [];
+  const st = data?.stats ?? { total: 0, activos: 0, tasa_promedio: 0 };
 
   return (
     <PageShell
@@ -42,9 +43,9 @@ function ProveedoresPage() {
     >
       <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Total proveedores", value: total },
-          { label: "Activos", value: active, accent: "text-brand-turquoise" },
-          { label: "Tasa validación promedio", value: `${avgRate}%`, accent: "text-brand-lime" },
+          { label: "Total proveedores", value: st.total },
+          { label: "Activos", value: st.activos, accent: "text-brand-turquoise" },
+          { label: "Tasa validación promedio", value: `${st.tasa_promedio}%`, accent: "text-brand-lime" },
           { label: "Integraciones ERP", value: "3", accent: "text-foreground" },
         ].map((s) => (
           <div key={s.label} className="rounded-xl border border-border bg-card p-4" style={{ boxShadow: "var(--shadow-card)" }}>
@@ -64,55 +65,61 @@ function ProveedoresPage() {
             />
           </div>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-secondary/30">
-                <th className="text-left font-medium px-5 py-3">Proveedor</th>
-                <th className="text-left font-medium px-3 py-3">CUIT</th>
-                <th className="text-right font-medium px-3 py-3">Facturas</th>
-                <th className="text-left font-medium px-3 py-3">Validación</th>
-                <th className="text-left font-medium px-3 py-3">ERP</th>
-                <th className="text-left font-medium px-3 py-3">Última sync</th>
-                <th className="text-left font-medium px-5 py-3">Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {providers.map((p, i) => (
-                <tr key={p.cuit} className="border-t border-border/60 hover:bg-secondary/30 transition animate-fade-in-up" style={{ animationDelay: `${i * 30}ms` }}>
-                  <td className="px-5 py-3.5">
-                    <div className="flex items-center gap-2.5">
-                      <div className="h-8 w-8 rounded-lg bg-secondary/80 border border-border flex items-center justify-center">
-                        <Building2 className="h-4 w-4 text-muted-foreground" />
-                      </div>
-                      <span className="font-medium">{p.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-3 py-3.5 font-mono text-[12px] text-muted-foreground">{p.cuit}</td>
-                  <td className="px-3 py-3.5 text-right tabular-nums">{p.invoices}</td>
-                  <td className="px-3 py-3.5">
-                    <div className="flex items-center gap-2">
-                      <div className="h-1.5 w-24 rounded-full bg-secondary overflow-hidden">
-                        <div className="h-full rounded-full" style={{ width: `${p.validRate}%`, background: p.validRate > 95 ? "var(--brand-turquoise)" : p.validRate > 90 ? "var(--brand-lime)" : "var(--brand-orange)" }} />
-                      </div>
-                      <span className="text-xs tabular-nums text-muted-foreground">{p.validRate}%</span>
-                    </div>
-                  </td>
-                  <td className="px-3 py-3.5">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-mono bg-secondary/60 border border-border">{p.erp}</span>
-                  </td>
-                  <td className="px-3 py-3.5 text-muted-foreground text-xs">{p.lastSync}</td>
-                  <td className="px-5 py-3.5">
-                    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium border ${statusBadge[p.status]}`}>
-                      <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse-dot" />
-                      {statusLabel[p.status]}
-                    </span>
-                  </td>
+        {isLoading ? (
+          <div className="flex items-center justify-center h-40">
+            <span className="h-6 w-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-secondary/30">
+                  <th className="text-left font-medium px-5 py-3">Proveedor</th>
+                  <th className="text-left font-medium px-3 py-3">CUIT</th>
+                  <th className="text-right font-medium px-3 py-3">Facturas</th>
+                  <th className="text-left font-medium px-3 py-3">Validación</th>
+                  <th className="text-left font-medium px-3 py-3">ERP</th>
+                  <th className="text-left font-medium px-3 py-3">Última sync</th>
+                  <th className="text-left font-medium px-5 py-3">Estado</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {providers.map((p, i) => (
+                  <tr key={p.cuit} className="border-t border-border/60 hover:bg-secondary/30 transition animate-fade-in-up" style={{ animationDelay: `${i * 30}ms` }}>
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-2.5">
+                        <div className="h-8 w-8 rounded-lg bg-secondary/80 border border-border flex items-center justify-center">
+                          <Building2 className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                        <span className="font-medium">{p.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-3 py-3.5 font-mono text-[12px] text-muted-foreground">{p.cuit}</td>
+                    <td className="px-3 py-3.5 text-right tabular-nums">{p.invoices}</td>
+                    <td className="px-3 py-3.5">
+                      <div className="flex items-center gap-2">
+                        <div className="h-1.5 w-24 rounded-full bg-secondary overflow-hidden">
+                          <div className="h-full rounded-full" style={{ width: `${p.validRate}%`, background: p.validRate > 95 ? "var(--brand-turquoise)" : p.validRate > 90 ? "var(--brand-lime)" : "var(--brand-orange)" }} />
+                        </div>
+                        <span className="text-xs tabular-nums text-muted-foreground">{p.validRate}%</span>
+                      </div>
+                    </td>
+                    <td className="px-3 py-3.5">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-mono bg-secondary/60 border border-border">{p.erp}</span>
+                    </td>
+                    <td className="px-3 py-3.5 text-muted-foreground text-xs">{p.lastSync}</td>
+                    <td className="px-5 py-3.5">
+                      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium border ${statusBadge[p.status]}`}>
+                        <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse-dot" />
+                        {statusLabel[p.status]}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </PageShell>
   );

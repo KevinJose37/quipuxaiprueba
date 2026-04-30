@@ -1,5 +1,4 @@
 import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { docTypeData, providerData, trendData } from "./data";
 
 const tooltipStyle = {
   background: "oklch(0.2 0.035 295)",
@@ -9,11 +8,22 @@ const tooltipStyle = {
   color: "white",
 };
 
-export function ProviderBars() {
+interface ProviderBarItem {
+  name: string;
+  facturas: number;
+}
+
+interface TrendItem {
+  day: string;
+  procesadas: number;
+  validadas: number;
+}
+
+export function ProviderBars({ data }: { data: ProviderBarItem[] }) {
   return (
     <ChartCard title="Facturas por proveedor" subtitle="Top 6 · últimos 7 días">
       <ResponsiveContainer width="100%" height={220}>
-        <BarChart data={providerData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+        <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
           <CartesianGrid stroke="oklch(1 0 0 / 6%)" vertical={false} />
           <XAxis dataKey="name" tick={{ fill: "oklch(0.72 0.02 295)", fontSize: 11 }} axisLine={false} tickLine={false} />
           <YAxis tick={{ fill: "oklch(0.72 0.02 295)", fontSize: 11 }} axisLine={false} tickLine={false} />
@@ -27,7 +37,15 @@ export function ProviderBars() {
 
 const PIE_COLORS = ["var(--brand-turquoise)", "var(--brand-purple)", "var(--brand-lime)", "var(--brand-orange)", "var(--brand-lavender)"];
 
+const defaultDocTypeData = [
+  { name: "Factura electrónica", value: 1845 },
+  { name: "Nota crédito", value: 312 },
+  { name: "Nota débito", value: 89 },
+  { name: "Soporte", value: 42 },
+];
+
 export function DocTypePie() {
+  const docTypeData = defaultDocTypeData;
   const total = docTypeData.reduce((a, b) => a + b.value, 0);
   return (
     <ChartCard title="Por tipo de documento" subtitle={`${total.toLocaleString()} documentos`}>
@@ -58,11 +76,11 @@ export function DocTypePie() {
   );
 }
 
-export function TrendLine() {
+export function TrendLine({ data }: { data: TrendItem[] }) {
   return (
     <ChartCard title="Tendencia · facturas procesadas" subtitle="Últimos 14 días">
       <ResponsiveContainer width="100%" height={220}>
-        <LineChart data={trendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+        <LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
           <CartesianGrid stroke="oklch(1 0 0 / 6%)" vertical={false} />
           <XAxis dataKey="day" tick={{ fill: "oklch(0.72 0.02 295)", fontSize: 11 }} axisLine={false} tickLine={false} />
           <YAxis tick={{ fill: "oklch(0.72 0.02 295)", fontSize: 11 }} axisLine={false} tickLine={false} />

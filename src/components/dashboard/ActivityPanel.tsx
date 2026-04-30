@@ -1,5 +1,4 @@
 import { Bot, FileText, AlertTriangle, XCircle, Activity } from "lucide-react";
-import { activity } from "./data";
 
 const iconFor = {
   auto: { Icon: Bot, color: "var(--brand-turquoise)", bg: "oklch(0.81 0.09 207 / 12%)" },
@@ -8,7 +7,17 @@ const iconFor = {
   error: { Icon: XCircle, color: "var(--brand-orange)", bg: "oklch(0.74 0.17 55 / 14%)" },
 } as const;
 
-export function ActivityPanel() {
+interface ActivityItem {
+  type: string;
+  text: string;
+  time: string;
+}
+
+interface Props {
+  data: ActivityItem[];
+}
+
+export function ActivityPanel({ data }: Props) {
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden h-full flex flex-col" style={{ boxShadow: "var(--shadow-card)" }}>
       <div className="p-5 border-b border-border flex items-center justify-between">
@@ -23,8 +32,8 @@ export function ActivityPanel() {
       </div>
 
       <ul className="flex-1 overflow-y-auto p-3 space-y-1">
-        {activity.map((a, i) => {
-          const cfg = iconFor[a.type as keyof typeof iconFor];
+        {data.map((a, i) => {
+          const cfg = iconFor[a.type as keyof typeof iconFor] ?? iconFor.auto;
           const Icon = cfg.Icon;
           return (
             <li key={i} className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-secondary/40 transition animate-fade-in-up" style={{ animationDelay: `${i * 40}ms` }}>

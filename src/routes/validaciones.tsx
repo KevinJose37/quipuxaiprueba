@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ShieldCheck, CheckCircle2, AlertTriangle } from "lucide-react";
 import { PageShell } from "@/components/dashboard/PageShell";
-import { validationRules } from "@/components/dashboard/data";
+import { useValidaciones } from "@/hooks/use-validaciones";
 
 export const Route = createFileRoute("/validaciones")({
   component: ValidacionesPage,
@@ -20,18 +20,19 @@ const sevColor: Record<string, string> = {
 };
 
 function ValidacionesPage() {
-  const totalPassed = validationRules.reduce((a, b) => a + b.passed, 0);
-  const totalFailed = validationRules.reduce((a, b) => a + b.failed, 0);
-  const successRate = ((totalPassed / (totalPassed + totalFailed)) * 100).toFixed(2);
+  const { data, isLoading } = useValidaciones();
+
+  const validationRules = data?.rules ?? [];
+  const st = data?.stats ?? { reglas_activas: 0, total_passed: 0, total_failed: 0, tasa_exito: 0 };
 
   return (
     <PageShell title="Validaciones" subtitle="Motor de reglas · IA + verificación documental">
       <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
-          { label: "Reglas activas", value: validationRules.length, icon: ShieldCheck, accent: "text-brand-turquoise" },
-          { label: "Validaciones OK (24h)", value: totalPassed.toLocaleString("es-AR"), icon: CheckCircle2, accent: "text-brand-lime" },
-          { label: "Fallos detectados", value: totalFailed, icon: AlertTriangle, accent: "text-brand-orange" },
-          { label: "Tasa de éxito", value: `${successRate}%`, icon: ShieldCheck, accent: "text-foreground" },
+          { label: "Reglas activas", value: st.reglas_activas, icon: ShieldCheck, accent: "text-brand-turquoise" },
+          { label: "Validaciones OK (24h)", value: st.total_passed.toLocaleString("es-CO"), icon: CheckCircle2, accent: "text-brand-lime" },
+          { label: "Fallos detectados", value: st.total_failed, icon: AlertTriangle, accent: "text-brand-orange" },
+          { label: "Tasa de éxito", value: `${st.tasa_exito}%`, icon: ShieldCheck, accent: "text-foreground" },
         ].map((s) => {
           const I = s.icon;
           return (
@@ -53,30 +54,36 @@ function ValidacionesPage() {
           <h3 className="text-[15px] font-semibold tracking-tight">Reglas de validación</h3>
           <p className="text-xs text-muted-foreground mt-0.5">Aplicadas automáticamente sobre cada documento ingresado</p>
         </div>
-        <div className="divide-y divide-border/60">
-          {validationRules.map((r, i) => {
-            const total = r.passed + r.failed;
-            const rate = (r.passed / total) * 100;
-            return (
-              <div key={r.code} className="p-5 flex flex-col md:flex-row md:items-center gap-4 hover:bg-secondary/20 transition animate-fade-in-up" style={{ animationDelay: `${i * 40}ms` }}>
-                <div className="flex items-center gap-3 md:w-80">
-                  <span className="font-mono text-[11px] px-2 py-0.5 rounded-md bg-secondary/60 border border-border">{r.code}</span>
-                  <span className="font-medium text-sm">{r.rule}</span>
-                </div>
-                <div className="flex-1">
-                  <div className="h-2 rounded-full bg-secondary overflow-hidden">
-                    <div className="h-full rounded-full transition-all" style={{ width: `${rate}%`, background: "var(--gradient-primary)" }} />
+        {isLoading ? (
+          <div className="flex items-center justify-center h-40">
+            <span className="h-6 w-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+          </div>
+        ) : (
+          <div className="divide-y divide-border/60">
+            {validationRules.map((r, i) => {
+              const total = r.passed + r.failed;
+              const rate = total > 0 ? (r.passed / total) * 100 : 0;
+              return (
+                <div key={r.code} className="p-5 flex flex-col md:flex-row md:items-center gap-4 hover:bg-secondary/20 transition animate-fade-in-up" style={{ animationDelay: `${i * 40}ms` }}>
+                  <div className="flex items-center gap-3 md:w-80">
+                    <span className="font-mono text-[11px] px-2 py-0.5 rounded-md bg-secondary/60 border border-border">{r.code}</span>
+                    <span className="font-medium text-sm">{r.rule}</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="h-2 rounded-full bg-secondary overflow-hidden">
+                      <div className="h-full rounded-full transition-all" style={{ width: `${rate}%`, background: "var(--gradient-primary)" }} />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-5 text-xs tabular-nums">
+                    <span className="text-brand-turquoise">{r.passed} OK</span>
+                    <span className="text-brand-orange">{r.failed} fallos</span>
+                    <span className={`uppercase tracking-wider text-[10px] font-semibold ${sevColor[r.severity]}`}>{r.severity}</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-5 text-xs tabular-nums">
-                  <span className="text-brand-turquoise">{r.passed} OK</span>
-                  <span className="text-brand-orange">{r.failed} fallos</span>
-                  <span className={`uppercase tracking-wider text-[10px] font-semibold ${sevColor[r.severity]}`}>{r.severity}</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </PageShell>
   );

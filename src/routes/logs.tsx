@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Search, Download } from "lucide-react";
 import { PageShell } from "@/components/dashboard/PageShell";
-import { logs } from "@/components/dashboard/data";
+import { useLogs } from "@/hooks/use-logs";
 
 export const Route = createFileRoute("/logs")({
   component: LogsPage,
@@ -21,10 +21,10 @@ const levelStyle: Record<string, string> = {
 };
 
 function LogsPage() {
-  const counts = logs.reduce<Record<string, number>>((acc, l) => {
-    acc[l.level] = (acc[l.level] ?? 0) + 1;
-    return acc;
-  }, {});
+  const { data, isLoading } = useLogs();
+
+  const logs = data?.logs ?? [];
+  const st = data?.stats ?? { total_24h: 0, info: 0, warn: 0, error: 0 };
 
   return (
     <PageShell
@@ -38,14 +38,14 @@ function LogsPage() {
     >
       <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Eventos (24h)", value: 12480, accent: "text-foreground" },
-          { label: "Info", value: counts.info ?? 0, accent: "text-brand-turquoise" },
-          { label: "Warnings", value: counts.warn ?? 0, accent: "text-brand-lime" },
-          { label: "Errores", value: counts.error ?? 0, accent: "text-brand-danger" },
+          { label: "Eventos (24h)", value: st.total_24h, accent: "text-foreground" },
+          { label: "Info", value: st.info, accent: "text-brand-turquoise" },
+          { label: "Warnings", value: st.warn, accent: "text-brand-lime" },
+          { label: "Errores", value: st.error, accent: "text-brand-danger" },
         ].map((s) => (
           <div key={s.label} className="rounded-xl border border-border bg-card p-4" style={{ boxShadow: "var(--shadow-card)" }}>
             <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{s.label}</div>
-            <div className={`mt-1.5 text-2xl font-semibold tabular-nums ${s.accent}`}>{s.value.toLocaleString("es-AR")}</div>
+            <div className={`mt-1.5 text-2xl font-semibold tabular-nums ${s.accent}`}>{typeof s.value === "number" ? s.value.toLocaleString("es-CO") : s.value}</div>
           </div>
         ))}
       </section>
@@ -71,18 +71,24 @@ function LogsPage() {
           ))}
         </div>
 
-        <div className="font-mono text-[12.5px] divide-y divide-border/40">
-          {logs.map((l, i) => (
-            <div key={i} className="grid grid-cols-[110px_72px_110px_1fr] items-center gap-3 px-5 py-2.5 hover:bg-secondary/30 transition animate-fade-in-up" style={{ animationDelay: `${i * 20}ms` }}>
-              <span className="text-muted-foreground tabular-nums">{l.ts}</span>
-              <span className={`inline-flex justify-center px-1.5 py-0.5 rounded text-[10px] uppercase font-semibold border ${levelStyle[l.level]}`}>
-                {l.level}
-              </span>
-              <span className="text-muted-foreground">[{l.source}]</span>
-              <span className="text-foreground truncate">{l.msg}</span>
-            </div>
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="flex items-center justify-center h-40">
+            <span className="h-6 w-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+          </div>
+        ) : (
+          <div className="font-mono text-[12.5px] divide-y divide-border/40">
+            {logs.map((l, i) => (
+              <div key={i} className="grid grid-cols-[110px_72px_110px_1fr] items-center gap-3 px-5 py-2.5 hover:bg-secondary/30 transition animate-fade-in-up" style={{ animationDelay: `${i * 20}ms` }}>
+                <span className="text-muted-foreground tabular-nums">{l.ts}</span>
+                <span className={`inline-flex justify-center px-1.5 py-0.5 rounded text-[10px] uppercase font-semibold border ${levelStyle[l.level] ?? levelStyle.debug}`}>
+                  {l.level}
+                </span>
+                <span className="text-muted-foreground">[{l.source}]</span>
+                <span className="text-foreground truncate">{l.msg}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </PageShell>
   );

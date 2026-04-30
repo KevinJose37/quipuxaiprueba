@@ -1,5 +1,4 @@
 import { Inbox, ShieldCheck, Cpu, Database, CheckCircle2, AlertTriangle } from "lucide-react";
-import { flowStages } from "./data";
 
 const iconFor: Record<string, typeof Inbox> = {
   intake: Inbox,
@@ -9,7 +8,20 @@ const iconFor: Record<string, typeof Inbox> = {
   done: CheckCircle2,
 };
 
-export function FlowPipeline() {
+interface FlowStage {
+  id: string;
+  label: string;
+  count: number;
+  status: string;
+}
+
+interface Props {
+  stages: FlowStage[];
+}
+
+export function FlowPipeline({ stages }: Props) {
+  const maxCount = stages.length > 0 ? stages[0].count : 1;
+
   return (
     <div className="rounded-xl border border-border bg-card p-6" style={{ boxShadow: "var(--shadow-card)" }}>
       <div className="flex items-start justify-between mb-6">
@@ -25,8 +37,8 @@ export function FlowPipeline() {
 
       <div className="relative">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-2 relative z-10">
-          {flowStages.map((stage, idx) => {
-            const Icon = iconFor[stage.id];
+          {stages.map((stage, idx) => {
+            const Icon = iconFor[stage.id] ?? CheckCircle2;
             const warn = stage.status === "warn";
             return (
               <div key={stage.id} className="relative">
@@ -40,10 +52,10 @@ export function FlowPipeline() {
                   <div className="mt-3 text-[11px] uppercase tracking-wider text-muted-foreground">{stage.label}</div>
                   <div className="mt-1 text-2xl font-semibold tabular-nums">{stage.count.toLocaleString()}</div>
                   <div className="mt-2 h-1 w-full rounded-full bg-secondary overflow-hidden">
-                    <div className="h-full rounded-full" style={{ width: `${(stage.count / flowStages[0].count) * 100}%`, background: warn ? "var(--brand-orange)" : "var(--gradient-primary)" }} />
+                    <div className="h-full rounded-full" style={{ width: `${(stage.count / maxCount) * 100}%`, background: warn ? "var(--brand-orange)" : "var(--gradient-primary)" }} />
                   </div>
                 </div>
-                {idx < flowStages.length - 1 && (
+                {idx < stages.length - 1 && (
                   <svg className="hidden md:block absolute top-1/2 -right-2 -translate-y-1/2 h-4 w-4 z-20" viewBox="0 0 16 16" fill="none">
                     <path d="M2 8 L14 8 M10 4 L14 8 L10 12" stroke="var(--brand-turquoise)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="flow-line" />
                   </svg>

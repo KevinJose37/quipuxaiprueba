@@ -1,5 +1,3 @@
-import { invoices } from "./data";
-
 const statusStyles: Record<string, string> = {
   validada: "bg-[oklch(0.81_0.09_207/15%)] text-brand-turquoise border-[oklch(0.81_0.09_207/30%)]",
   pendiente: "bg-[oklch(0.92_0.18_110/15%)] text-brand-lime border-[oklch(0.92_0.18_110/30%)]",
@@ -14,7 +12,20 @@ const statusLabel: Record<string, string> = {
   error: "Error crítico",
 };
 
-export function InvoicesTable() {
+interface Invoice {
+  id: string;
+  provider: string;
+  type: string;
+  status: string;
+  date: string;
+  time: string;
+}
+
+interface Props {
+  data: Invoice[];
+}
+
+export function InvoicesTable({ data }: Props) {
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden" style={{ boxShadow: "var(--shadow-card)" }}>
       <div className="flex items-center justify-between p-5 border-b border-border">
@@ -37,7 +48,7 @@ export function InvoicesTable() {
             </tr>
           </thead>
           <tbody>
-            {invoices.map((inv, i) => (
+            {data.map((inv, i) => (
               <tr key={inv.id} className="border-t border-border/60 hover:bg-secondary/30 transition animate-fade-in-up" style={{ animationDelay: `${i * 30}ms` }}>
                 <td className="px-5 py-3.5 font-mono text-[12px] text-foreground">{inv.id}</td>
                 <td className="px-3 py-3.5 text-foreground">{inv.provider}</td>

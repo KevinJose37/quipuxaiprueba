@@ -7,7 +7,7 @@ import { FlowPipeline } from "@/components/dashboard/FlowPipeline";
 import { DocTypePie, ErrorHeatmap, ProviderBars, TrendLine } from "@/components/dashboard/Charts";
 import { InvoicesTable } from "@/components/dashboard/InvoicesTable";
 import { ActivityPanel } from "@/components/dashboard/ActivityPanel";
-import { kpis } from "@/components/dashboard/data";
+import { useDashboard } from "@/hooks/use-dashboard";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -29,6 +29,15 @@ const kpiIcons = {
 } as const;
 
 function Index() {
+  const { data, isLoading } = useDashboard();
+
+  const kpis = data?.kpis ?? [];
+  const flowStages = data?.flow_stages ?? [];
+  const providerData = data?.provider_data ?? [];
+  const trendData = data?.trend_data ?? [];
+  const invoices = data?.invoices ?? [];
+  const activity = data?.activity ?? [];
+
   return (
     <div className="flex min-h-screen w-full bg-background text-foreground">
       <Sidebar />
@@ -39,7 +48,7 @@ function Index() {
             <div>
               <h1 className="text-[26px] font-semibold tracking-tight">Operaciones de facturación</h1>
               <p className="text-sm text-muted-foreground mt-1">
-                Monitoreo del pipeline automatizado · QUIPUX AI · 29 Abril 2026
+                Monitoreo del pipeline automatizado · QUIPUX AI · {new Date().toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" })}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -50,39 +59,47 @@ function Index() {
             </div>
           </div>
 
-          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-            {kpis.map((k) => (
-              <KpiCard
-                key={k.key}
-                label={k.label}
-                value={k.value}
-                delta={k.delta}
-                spark={[...k.spark]}
-                Icon={kpiIcons[k.key as keyof typeof kpiIcons]}
-                color={(k as { color?: string }).color ?? "turquoise"}
-              />
-            ))}
-          </section>
+          {isLoading ? (
+            <div className="flex items-center justify-center h-40">
+              <span className="h-6 w-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+            </div>
+          ) : (
+            <>
+              <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+                {kpis.map((k) => (
+                  <KpiCard
+                    key={k.key}
+                    label={k.label}
+                    value={k.value}
+                    delta={k.delta}
+                    spark={[...k.spark]}
+                    Icon={kpiIcons[k.key as keyof typeof kpiIcons]}
+                    color={(k as { color?: string }).color ?? "turquoise"}
+                  />
+                ))}
+              </section>
 
-          <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            <div className="xl:col-span-2 space-y-6">
-              <FlowPipeline />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <ProviderBars />
-                <DocTypePie />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <TrendLine />
-                <ErrorHeatmap />
-              </div>
-              <InvoicesTable />
-            </div>
-            <div className="xl:col-span-1">
-              <div className="xl:sticky xl:top-20">
-                <ActivityPanel />
-              </div>
-            </div>
-          </section>
+              <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                <div className="xl:col-span-2 space-y-6">
+                  <FlowPipeline stages={flowStages} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <ProviderBars data={providerData} />
+                    <DocTypePie />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <TrendLine data={trendData} />
+                    <ErrorHeatmap />
+                  </div>
+                  <InvoicesTable data={invoices} />
+                </div>
+                <div className="xl:col-span-1">
+                  <div className="xl:sticky xl:top-20">
+                    <ActivityPanel data={activity} />
+                  </div>
+                </div>
+              </section>
+            </>
+          )}
         </main>
       </div>
     </div>

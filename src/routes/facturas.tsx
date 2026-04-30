@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Download, Filter, Plus, Search } from "lucide-react";
 import { PageShell } from "@/components/dashboard/PageShell";
-import { allInvoices } from "@/components/dashboard/data";
+import { useFacturas } from "@/hooks/use-facturas";
 
 export const Route = createFileRoute("/facturas")({
   component: FacturasPage,
@@ -21,18 +21,17 @@ const statusStyles: Record<string, string> = {
 };
 
 function FacturasPage() {
-  const total = allInvoices.length;
-  const validated = allInvoices.filter((i) => i.status === "validada").length;
-  const rejected = allInvoices.filter((i) => i.status === "rechazada" || i.status === "error").length;
-  const pending = allInvoices.filter((i) => i.status === "pendiente").length;
-  const sumAmount = allInvoices.reduce((a, b) => a + b.amount, 0);
+  const { data, isLoading } = useFacturas();
+
+  const allInvoices = data?.invoices ?? [];
+  const s = data?.stats ?? { total: 0, validadas: 0, pendientes: 0, rechazadas: 0, monto_total: 0 };
 
   const stats = [
-    { label: "Total", value: total, accent: "text-foreground" },
-    { label: "Validadas", value: validated, accent: "text-brand-turquoise" },
-    { label: "Pendientes", value: pending, accent: "text-brand-lime" },
-    { label: "Rechazadas", value: rejected, accent: "text-brand-orange" },
-    { label: "Monto total", value: `$${sumAmount.toLocaleString("es-AR")}`, accent: "text-foreground" },
+    { label: "Total", value: s.total, accent: "text-foreground" },
+    { label: "Validadas", value: s.validadas, accent: "text-brand-turquoise" },
+    { label: "Pendientes", value: s.pendientes, accent: "text-brand-lime" },
+    { label: "Rechazadas", value: s.rechazadas, accent: "text-brand-orange" },
+    { label: "Monto total", value: `$${s.monto_total.toLocaleString("es-CO")}`, accent: "text-foreground" },
   ];
 
   return (
@@ -51,10 +50,10 @@ function FacturasPage() {
       }
     >
       <section className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        {stats.map((s) => (
-          <div key={s.label} className="rounded-xl border border-border bg-card p-4" style={{ boxShadow: "var(--shadow-card)" }}>
-            <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{s.label}</div>
-            <div className={`mt-1.5 text-2xl font-semibold tabular-nums ${s.accent}`}>{s.value}</div>
+        {stats.map((st) => (
+          <div key={st.label} className="rounded-xl border border-border bg-card p-4" style={{ boxShadow: "var(--shadow-card)" }}>
+            <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{st.label}</div>
+            <div className={`mt-1.5 text-2xl font-semibold tabular-nums ${st.accent}`}>{st.value}</div>
           </div>
         ))}
       </section>
@@ -83,39 +82,45 @@ function FacturasPage() {
           </button>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-secondary/30">
-                <th className="text-left font-medium px-5 py-3">Nº Factura</th>
-                <th className="text-left font-medium px-3 py-3">Proveedor</th>
-                <th className="text-left font-medium px-3 py-3">Tipo</th>
-                <th className="text-left font-medium px-3 py-3">Estado</th>
-                <th className="text-right font-medium px-3 py-3">Monto</th>
-                <th className="text-left font-medium px-3 py-3">Fecha</th>
-                <th className="text-right font-medium px-5 py-3">Tiempo</th>
-              </tr>
-            </thead>
-            <tbody>
-              {allInvoices.map((inv, i) => (
-                <tr key={inv.id} className="border-t border-border/60 hover:bg-secondary/30 transition animate-fade-in-up" style={{ animationDelay: `${i * 15}ms` }}>
-                  <td className="px-5 py-3 font-mono text-[12px]">{inv.id}</td>
-                  <td className="px-3 py-3">{inv.provider}</td>
-                  <td className="px-3 py-3 text-muted-foreground">{inv.type}</td>
-                  <td className="px-3 py-3">
-                    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium border ${statusStyles[inv.status]}`}>
-                      <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                      {inv.status}
-                    </span>
-                  </td>
-                  <td className="px-3 py-3 text-right tabular-nums">${inv.amount.toLocaleString("es-AR")}</td>
-                  <td className="px-3 py-3 text-muted-foreground tabular-nums">{inv.date}</td>
-                  <td className="px-5 py-3 text-right tabular-nums">{inv.time}</td>
+        {isLoading ? (
+          <div className="flex items-center justify-center h-40">
+            <span className="h-6 w-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-secondary/30">
+                  <th className="text-left font-medium px-5 py-3">Nº Factura</th>
+                  <th className="text-left font-medium px-3 py-3">Proveedor</th>
+                  <th className="text-left font-medium px-3 py-3">Tipo</th>
+                  <th className="text-left font-medium px-3 py-3">Estado</th>
+                  <th className="text-right font-medium px-3 py-3">Monto</th>
+                  <th className="text-left font-medium px-3 py-3">Fecha</th>
+                  <th className="text-right font-medium px-5 py-3">Tiempo</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {allInvoices.map((inv, i) => (
+                  <tr key={inv.id} className="border-t border-border/60 hover:bg-secondary/30 transition animate-fade-in-up" style={{ animationDelay: `${i * 15}ms` }}>
+                    <td className="px-5 py-3 font-mono text-[12px]">{inv.id}</td>
+                    <td className="px-3 py-3">{inv.provider}</td>
+                    <td className="px-3 py-3 text-muted-foreground">{inv.type}</td>
+                    <td className="px-3 py-3">
+                      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium border ${statusStyles[inv.status]}`}>
+                        <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                        {inv.status}
+                      </span>
+                    </td>
+                    <td className="px-3 py-3 text-right tabular-nums">${inv.amount.toLocaleString("es-CO")}</td>
+                    <td className="px-3 py-3 text-muted-foreground tabular-nums">{inv.date}</td>
+                    <td className="px-5 py-3 text-right tabular-nums">{inv.time}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </PageShell>
   );

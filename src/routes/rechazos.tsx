@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { XOctagon, RotateCcw } from "lucide-react";
 import { PageShell } from "@/components/dashboard/PageShell";
-import { rejections } from "@/components/dashboard/data";
+import { useRechazos } from "@/hooks/use-rechazos";
 
 export const Route = createFileRoute("/rechazos")({
   component: RechazosPage,
@@ -20,24 +20,22 @@ const sevStyle: Record<string, string> = {
 };
 
 function RechazosPage() {
-  const high = rejections.filter((r) => r.severity === "high").length;
+  const { data, isLoading } = useRechazos();
 
-  // Group by rule for breakdown
-  const byRule = Object.entries(
-    rejections.reduce<Record<string, number>>((acc, r) => {
-      acc[r.rule] = (acc[r.rule] ?? 0) + 1;
-      return acc;
-    }, {}),
-  ).sort((a, b) => b[1] - a[1]);
+  const rejections = data?.rejections ?? [];
+  const causes = data?.causes ?? [];
+  const st = data?.stats ?? { rechazos_hoy: 0, severidad_alta: 0, reintentos: 0, tasa_rechazo: 0 };
+
+  const maxCause = causes.length > 0 ? causes[0].count : 1;
 
   return (
     <PageShell title="Rechazos" subtitle="Documentos no aceptados · análisis de causas raíz">
       <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
-          { label: "Rechazos hoy", value: rejections.length, accent: "text-brand-orange" },
-          { label: "Severidad alta", value: high, accent: "text-brand-danger" },
-          { label: "Reintentos automáticos", value: 18, accent: "text-brand-turquoise" },
-          { label: "Tasa de rechazo", value: "3.6%", accent: "text-foreground" },
+          { label: "Rechazos hoy", value: st.rechazos_hoy, accent: "text-brand-orange" },
+          { label: "Severidad alta", value: st.severidad_alta, accent: "text-brand-danger" },
+          { label: "Reintentos automáticos", value: st.reintentos, accent: "text-brand-turquoise" },
+          { label: "Tasa de rechazo", value: `${st.tasa_rechazo}%`, accent: "text-foreground" },
         ].map((s) => (
           <div key={s.label} className="rounded-xl border border-border bg-card p-4" style={{ boxShadow: "var(--shadow-card)" }}>
             <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{s.label}</div>
@@ -46,59 +44,62 @@ function RechazosPage() {
         ))}
       </section>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 rounded-xl border border-border bg-card overflow-hidden" style={{ boxShadow: "var(--shadow-card)" }}>
-          <div className="p-5 border-b border-border flex items-center justify-between">
-            <div>
-              <h3 className="text-[15px] font-semibold tracking-tight">Documentos rechazados</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">Últimas 24 horas</p>
-            </div>
-            <button className="h-8 px-3 text-xs rounded-lg border border-border bg-secondary/60 hover:bg-secondary transition flex items-center gap-1.5">
-              <RotateCcw className="h-3.5 w-3.5" /> Reintentar todo
-            </button>
-          </div>
-          <div className="divide-y divide-border/60">
-            {rejections.map((r, i) => (
-              <div key={r.id} className="p-4 flex items-start gap-4 hover:bg-secondary/20 transition animate-fade-in-up" style={{ animationDelay: `${i * 30}ms` }}>
-                <div className={`h-9 w-9 rounded-lg border flex items-center justify-center shrink-0 ${sevStyle[r.severity]}`}>
-                  <XOctagon className="h-4 w-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-mono text-[12px]">{r.id}</span>
-                    <span className="text-xs text-muted-foreground">·</span>
-                    <span className="text-sm font-medium">{r.provider}</span>
-                    <span className={`ml-auto px-2 py-0.5 rounded-md text-[10px] font-mono border ${sevStyle[r.severity]}`}>{r.rule}</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-1">{r.reason}</p>
-                  <div className="text-[11px] text-muted-foreground mt-1.5 tabular-nums">{r.date}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+      {isLoading ? (
+        <div className="flex items-center justify-center h-40">
+          <span className="h-6 w-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
         </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 rounded-xl border border-border bg-card overflow-hidden" style={{ boxShadow: "var(--shadow-card)" }}>
+            <div className="p-5 border-b border-border flex items-center justify-between">
+              <div>
+                <h3 className="text-[15px] font-semibold tracking-tight">Documentos rechazados</h3>
+                <p className="text-xs text-muted-foreground mt-0.5">Últimas 24 horas</p>
+              </div>
+              <button className="h-8 px-3 text-xs rounded-lg border border-border bg-secondary/60 hover:bg-secondary transition flex items-center gap-1.5">
+                <RotateCcw className="h-3.5 w-3.5" /> Reintentar todo
+              </button>
+            </div>
+            <div className="divide-y divide-border/60">
+              {rejections.map((r, i) => (
+                <div key={r.id} className="p-4 flex items-start gap-4 hover:bg-secondary/20 transition animate-fade-in-up" style={{ animationDelay: `${i * 30}ms` }}>
+                  <div className={`h-9 w-9 rounded-lg border flex items-center justify-center shrink-0 ${sevStyle[r.severity]}`}>
+                    <XOctagon className="h-4 w-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-mono text-[12px]">{r.id}</span>
+                      <span className="text-xs text-muted-foreground">·</span>
+                      <span className="text-sm font-medium">{r.provider}</span>
+                      <span className={`ml-auto px-2 py-0.5 rounded-md text-[10px] font-mono border ${sevStyle[r.severity]}`}>{r.rule}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1">{r.reason}</p>
+                    <div className="text-[11px] text-muted-foreground mt-1.5 tabular-nums">{r.date}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
 
-        <div className="rounded-xl border border-border bg-card p-5" style={{ boxShadow: "var(--shadow-card)" }}>
-          <h3 className="text-[15px] font-semibold tracking-tight">Causas más frecuentes</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">Por regla aplicada</p>
-          <div className="mt-4 space-y-3">
-            {byRule.map(([rule, count]) => {
-              const max = byRule[0][1];
-              return (
-                <div key={rule}>
+          <div className="rounded-xl border border-border bg-card p-5" style={{ boxShadow: "var(--shadow-card)" }}>
+            <h3 className="text-[15px] font-semibold tracking-tight">Causas más frecuentes</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">Por regla aplicada</p>
+            <div className="mt-4 space-y-3">
+              {causes.map((c) => (
+                <div key={c.rule}>
                   <div className="flex items-center justify-between text-xs mb-1.5">
-                    <span className="font-mono text-muted-foreground">{rule}</span>
-                    <span className="tabular-nums font-semibold">{count}</span>
+                    <span className="font-mono text-muted-foreground">{c.rule}</span>
+                    <span className="tabular-nums font-semibold">{c.count}</span>
                   </div>
                   <div className="h-2 rounded-full bg-secondary overflow-hidden">
-                    <div className="h-full rounded-full" style={{ width: `${(count / max) * 100}%`, background: "var(--gradient-primary)" }} />
+                    <div className="h-full rounded-full" style={{ width: `${(c.count / maxCause) * 100}%`, background: "var(--gradient-primary)" }} />
                   </div>
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </PageShell>
   );
 }
