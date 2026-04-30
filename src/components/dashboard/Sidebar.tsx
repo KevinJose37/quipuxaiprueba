@@ -22,8 +22,8 @@ export function Sidebar() {
           <Sparkles className="h-4.5 w-4.5 text-[oklch(0.2_0.03_295)]" strokeWidth={2.5} />
         </div>
         <div>
-          <div className="text-[15px] font-semibold tracking-tight">QUIPUX</div>
-          <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Director Apolo</div>
+          <div className="text-[15px] font-semibold tracking-tight">Director Apolo</div>
+          <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Quipux</div>
         </div>
       </div>
 
