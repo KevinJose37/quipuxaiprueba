@@ -8,8 +8,9 @@ import { DocTypePie, ErrorHeatmap, ProviderBars, TrendLine } from "@/components/
 import { InvoicesTable } from "@/components/dashboard/InvoicesTable";
 import { ActivityPanel } from "@/components/dashboard/ActivityPanel";
 import { useDashboard } from "@/hooks/use-dashboard";
+import { KpiCardLoader, CardLoader, TableCardLoader } from "@/components/dashboard/CardLoader";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/")(  {
   component: Index,
   head: () => ({
     meta: [
@@ -33,10 +34,14 @@ function Index() {
 
   const kpis = data?.kpis ?? [];
   const flowStages = data?.flow_stages ?? [];
+  const flowIndicators = data?.flow_indicators ?? { sla: "—", atascadas: "—", cola: "—" };
   const providerData = data?.provider_data ?? [];
+  const docTypeData = data?.doc_type_data ?? [];
   const trendData = data?.trend_data ?? [];
+  const heatmapData = data?.heatmap_data ?? [];
   const invoices = data?.invoices ?? [];
   const activity = data?.activity ?? [];
+  const eventsPerMin = data?.events_per_min ?? { events_per_min: 0, capacity_pct: 0 };
 
   return (
     <div className="flex min-h-screen w-full bg-background text-foreground">
@@ -51,22 +56,14 @@ function Index() {
                 Monitoreo del pipeline automatizado · QUIPUX AI · {new Date().toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" })}
               </p>
             </div>
-            <div className="flex items-center gap-2">
-              <button className="h-9 px-3.5 text-xs rounded-lg border border-border bg-secondary/60 hover:bg-secondary transition">Exportar</button>
-              <button className="h-9 px-3.5 text-xs rounded-lg font-semibold text-[oklch(0.2_0.03_295)] hover:opacity-90 transition" style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}>
-                Nuevo flujo
-              </button>
-            </div>
+
           </div>
 
-          {isLoading ? (
-            <div className="flex items-center justify-center h-40">
-              <span className="h-6 w-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-            </div>
-          ) : (
-            <>
-              <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-                {kpis.map((k) => (
+          {/* KPI Cards */}
+          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+            {isLoading
+              ? Array.from({ length: 6 }, (_, i) => <KpiCardLoader key={i} />)
+              : kpis.map((k) => (
                   <KpiCard
                     key={k.key}
                     label={k.label}
@@ -77,29 +74,32 @@ function Index() {
                     color={(k as { color?: string }).color ?? "turquoise"}
                   />
                 ))}
-              </section>
+          </section>
 
-              <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                <div className="xl:col-span-2 space-y-6">
-                  <FlowPipeline stages={flowStages} />
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <ProviderBars data={providerData} />
-                    <DocTypePie />
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <TrendLine data={trendData} />
-                    <ErrorHeatmap />
-                  </div>
-                  <InvoicesTable data={invoices} />
-                </div>
-                <div className="xl:col-span-1">
-                  <div className="xl:sticky xl:top-20">
-                    <ActivityPanel data={activity} />
-                  </div>
-                </div>
-              </section>
-            </>
-          )}
+          {/* Main content grid */}
+          <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <div className="xl:col-span-2 space-y-6">
+              {isLoading ? <CardLoader className="h-[280px]" /> : <FlowPipeline stages={flowStages} indicators={flowIndicators} />}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {isLoading ? <CardLoader className="h-[300px]" /> : <ProviderBars data={providerData} />}
+                {isLoading ? <CardLoader className="h-[300px]" /> : <DocTypePie data={docTypeData} />}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {isLoading ? <CardLoader className="h-[300px]" /> : <TrendLine data={trendData} />}
+                {isLoading ? <CardLoader className="h-[300px]" /> : <ErrorHeatmap data={heatmapData} />}
+              </div>
+
+              {isLoading ? <TableCardLoader className="h-[420px]" /> : <InvoicesTable data={invoices} />}
+            </div>
+
+            <div className="xl:col-span-1">
+              <div className="xl:sticky xl:top-20">
+                {isLoading ? <CardLoader className="h-[520px]" /> : <ActivityPanel data={activity} eventsPerMin={eventsPerMin} />}
+              </div>
+            </div>
+          </section>
         </main>
       </div>
     </div>

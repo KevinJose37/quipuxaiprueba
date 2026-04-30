@@ -19,6 +19,17 @@ interface TrendItem {
   validadas: number;
 }
 
+interface DocTypeItem {
+  name: string;
+  value: number;
+}
+
+interface HeatmapCell {
+  day: string;
+  hour: number;
+  value: number;
+}
+
 export function ProviderBars({ data }: { data: ProviderBarItem[] }) {
   return (
     <ChartCard title="Facturas por proveedor" subtitle="Top 6 · últimos 7 días">
@@ -37,23 +48,15 @@ export function ProviderBars({ data }: { data: ProviderBarItem[] }) {
 
 const PIE_COLORS = ["var(--brand-turquoise)", "var(--brand-purple)", "var(--brand-lime)", "var(--brand-orange)", "var(--brand-lavender)"];
 
-const defaultDocTypeData = [
-  { name: "Factura electrónica", value: 1845 },
-  { name: "Nota crédito", value: 312 },
-  { name: "Nota débito", value: 89 },
-  { name: "Soporte", value: 42 },
-];
-
-export function DocTypePie() {
-  const docTypeData = defaultDocTypeData;
-  const total = docTypeData.reduce((a, b) => a + b.value, 0);
+export function DocTypePie({ data }: { data: DocTypeItem[] }) {
+  const total = data.reduce((a, b) => a + b.value, 0);
   return (
     <ChartCard title="Por tipo de documento" subtitle={`${total.toLocaleString()} documentos`}>
       <div className="flex items-center gap-4">
         <ResponsiveContainer width="55%" height={200}>
           <PieChart>
-            <Pie data={docTypeData} dataKey="value" innerRadius={48} outerRadius={75} paddingAngle={2} stroke="none">
-              {docTypeData.map((_, i) => (
+            <Pie data={data} dataKey="value" innerRadius={48} outerRadius={75} paddingAngle={2} stroke="none">
+              {data.map((_, i) => (
                 <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
               ))}
             </Pie>
@@ -61,7 +64,7 @@ export function DocTypePie() {
           </PieChart>
         </ResponsiveContainer>
         <ul className="flex-1 space-y-2 text-xs">
-          {docTypeData.map((d, i) => (
+          {data.map((d, i) => (
             <li key={d.name} className="flex items-center justify-between">
               <span className="flex items-center gap-2 text-muted-foreground">
                 <span className="h-2 w-2 rounded-full" style={{ background: PIE_COLORS[i] }} />
@@ -93,15 +96,20 @@ export function TrendLine({ data }: { data: TrendItem[] }) {
   );
 }
 
-export function ErrorHeatmap() {
+export function ErrorHeatmap({ data }: { data: HeatmapCell[] }) {
   const hours = Array.from({ length: 24 }, (_, i) => i);
   const days = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
-  // deterministic values
-  const cell = (d: number, h: number) => {
-    const base = h >= 9 && h <= 18 ? 5 : 1;
-    const peak = h === 14 ? 4 : 0;
-    return ((d * 7 + h * 3) % 4) + base + peak - (h < 6 ? 2 : 0);
-  };
+
+  // Build a lookup map from the sparse data; missing cells default to 0
+  const lookup = new Map<string, number>();
+  for (const cell of data) {
+    lookup.set(`${cell.day}-${cell.hour}`, cell.value);
+  }
+  const cellValue = (day: string, hour: number) => lookup.get(`${day}-${hour}`) ?? 0;
+
+  // Find max value for opacity scaling
+  const maxVal = data.length > 0 ? Math.max(...data.map((c) => c.value), 1) : 1;
+
   return (
     <ChartCard title="Errores por hora" subtitle="Heatmap semanal">
       <div className="overflow-x-auto">
@@ -111,12 +119,12 @@ export function ErrorHeatmap() {
               <div key={h} className="text-[10px] text-muted-foreground" style={{ width: 33 }}>{h}h</div>
             ))}
           </div>
-          {days.map((d, di) => (
+          {days.map((d) => (
             <div key={d} className="flex items-center gap-[3px] mb-[3px]">
               <div className="w-7 text-[10px] text-muted-foreground">{d}</div>
               {hours.map(h => {
-                const v = Math.max(0, cell(di, h));
-                const opacity = Math.min(1, v / 8);
+                const v = cellValue(d, h);
+                const opacity = Math.min(1, v / maxVal);
                 return (
                   <div key={h} className="h-5 w-[10px] rounded-[2px]" style={{ background: `oklch(0.74 0.17 55 / ${0.08 + opacity * 0.7})` }} title={`${d} ${h}h · ${v} errores`} />
                 );

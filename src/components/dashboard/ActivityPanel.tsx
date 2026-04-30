@@ -1,4 +1,5 @@
 import { Bot, FileText, AlertTriangle, XCircle, Activity } from "lucide-react";
+import type { EventsPerMin } from "@/hooks/use-dashboard";
 
 const iconFor = {
   auto: { Icon: Bot, color: "var(--brand-turquoise)", bg: "oklch(0.81 0.09 207 / 12%)" },
@@ -15,9 +16,10 @@ interface ActivityItem {
 
 interface Props {
   data: ActivityItem[];
+  eventsPerMin: EventsPerMin;
 }
 
-export function ActivityPanel({ data }: Props) {
+export function ActivityPanel({ data, eventsPerMin }: Props) {
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden h-full flex flex-col" style={{ boxShadow: "var(--shadow-card)" }}>
       <div className="p-5 border-b border-border flex items-center justify-between">
@@ -27,7 +29,7 @@ export function ActivityPanel({ data }: Props) {
         </div>
         <span className="text-[10px] uppercase tracking-wider text-primary flex items-center gap-1.5">
           <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse-dot" />
-          Live
+          EN VIVO
         </span>
       </div>
 
@@ -52,10 +54,10 @@ export function ActivityPanel({ data }: Props) {
       <div className="p-4 border-t border-border bg-secondary/20">
         <div className="flex items-center justify-between text-[11px]">
           <span className="text-muted-foreground">Eventos / min</span>
-          <span className="font-semibold tabular-nums text-foreground">142</span>
+          <span className="font-semibold tabular-nums text-foreground">{eventsPerMin.events_per_min}</span>
         </div>
         <div className="mt-2 h-1 rounded-full bg-secondary overflow-hidden">
-          <div className="h-full rounded-full" style={{ width: "72%", background: "var(--gradient-primary)" }} />
+          <div className="h-full rounded-full" style={{ width: `${eventsPerMin.capacity_pct}%`, background: "var(--gradient-primary)" }} />
         </div>
       </div>
     </div>

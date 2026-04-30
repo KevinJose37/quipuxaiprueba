@@ -1,4 +1,5 @@
 import { Inbox, ShieldCheck, Cpu, Database, CheckCircle2, AlertTriangle } from "lucide-react";
+import type { FlowIndicators } from "@/hooks/use-dashboard";
 
 const iconFor: Record<string, typeof Inbox> = {
   intake: Inbox,
@@ -17,9 +18,10 @@ interface FlowStage {
 
 interface Props {
   stages: FlowStage[];
+  indicators: FlowIndicators;
 }
 
-export function FlowPipeline({ stages }: Props) {
+export function FlowPipeline({ stages, indicators }: Props) {
   const maxCount = stages.length > 0 ? stages[0].count : 1;
 
   return (
@@ -31,7 +33,7 @@ export function FlowPipeline({ stages }: Props) {
         </div>
         <span className="text-[11px] text-primary font-medium flex items-center gap-1.5">
           <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse-dot" />
-          LIVE
+          EN VIVO
         </span>
       </div>
 
@@ -66,11 +68,10 @@ export function FlowPipeline({ stages }: Props) {
         </div>
       </div>
 
-      <div className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-        <Indicator label="SLA cumplido" value="98.2%" tone="ok" />
-        <Indicator label="Facturas atascadas" value="12" tone="warn" />
-        <Indicator label="ERP integrado" value="SAP · Oracle" tone="ok" />
-        <Indicator label="Cola interna" value="84 jobs" tone="info" />
+      <div className="mt-5 grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+        <Indicator label="SLA cumplido" value={indicators.sla} tone="ok" />
+        <Indicator label="Facturas atascadas" value={indicators.atascadas} tone="warn" />
+        <Indicator label="Cola interna" value={indicators.cola} tone="info" />
       </div>
     </div>
   );

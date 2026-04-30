@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Download, Filter, Plus, Search } from "lucide-react";
 import { PageShell } from "@/components/dashboard/PageShell";
 import { useFacturas } from "@/hooks/use-facturas";
+import { StatCardLoader, TableCardLoader } from "@/components/dashboard/CardLoader";
 
 export const Route = createFileRoute("/facturas")({
   component: FacturasPage,
@@ -38,55 +39,48 @@ function FacturasPage() {
     <PageShell
       title="Facturas"
       subtitle="Listado completo · pipeline en tiempo real"
-      actions={
-        <>
-          <button className="h-9 px-3.5 text-xs rounded-lg border border-border bg-secondary/60 hover:bg-secondary transition flex items-center gap-1.5">
-            <Download className="h-3.5 w-3.5" /> Exportar
-          </button>
-          <button className="h-9 px-3.5 text-xs rounded-lg font-semibold text-[oklch(0.2_0.03_295)] hover:opacity-90 transition flex items-center gap-1.5" style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}>
-            <Plus className="h-3.5 w-3.5" /> Nueva factura
-          </button>
-        </>
-      }
     >
+
+      {/* Stat cards */}
       <section className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        {stats.map((st) => (
-          <div key={st.label} className="rounded-xl border border-border bg-card p-4" style={{ boxShadow: "var(--shadow-card)" }}>
-            <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{st.label}</div>
-            <div className={`mt-1.5 text-2xl font-semibold tabular-nums ${st.accent}`}>{st.value}</div>
-          </div>
-        ))}
+        {isLoading
+          ? Array.from({ length: 5 }, (_, i) => <StatCardLoader key={i} />)
+          : stats.map((st) => (
+              <div key={st.label} className="rounded-xl border border-border bg-card p-4" style={{ boxShadow: "var(--shadow-card)" }}>
+                <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{st.label}</div>
+                <div className={`mt-1.5 text-2xl font-semibold tabular-nums ${st.accent}`}>{st.value}</div>
+              </div>
+            ))}
       </section>
 
-      <div className="rounded-xl border border-border bg-card overflow-hidden" style={{ boxShadow: "var(--shadow-card)" }}>
-        <div className="flex flex-col md:flex-row md:items-center gap-3 p-4 border-b border-border">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input
-              placeholder="Buscar por número, proveedor o monto…"
-              className="w-full h-9 pl-10 pr-3 rounded-lg bg-secondary/60 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            />
-          </div>
-          {["Todas", "Validadas", "Pendientes", "Rechazadas"].map((t, i) => (
-            <button
-              key={t}
-              className={`h-9 px-3 text-xs rounded-lg border transition ${
-                i === 0 ? "bg-primary/15 border-primary/30 text-primary" : "border-border bg-secondary/60 text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {t}
+      {/* Table */}
+      {isLoading ? (
+        <TableCardLoader className="h-[500px]" />
+      ) : (
+        <div className="rounded-xl border border-border bg-card overflow-hidden" style={{ boxShadow: "var(--shadow-card)" }}>
+          <div className="flex flex-col md:flex-row md:items-center gap-3 p-4 border-b border-border">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input
+                placeholder="Buscar por número, proveedor o monto…"
+                className="w-full h-9 pl-10 pr-3 rounded-lg bg-secondary/60 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+            {["Todas", "Validadas", "Pendientes", "Rechazadas"].map((t, i) => (
+              <button
+                key={t}
+                className={`h-9 px-3 text-xs rounded-lg border transition ${
+                  i === 0 ? "bg-primary/15 border-primary/30 text-primary" : "border-border bg-secondary/60 text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {t}
+              </button>
+            ))}
+            <button className="h-9 px-3 text-xs rounded-lg border border-border bg-secondary/60 flex items-center gap-1.5">
+              <Filter className="h-3.5 w-3.5" /> Filtros
             </button>
-          ))}
-          <button className="h-9 px-3 text-xs rounded-lg border border-border bg-secondary/60 flex items-center gap-1.5">
-            <Filter className="h-3.5 w-3.5" /> Filtros
-          </button>
-        </div>
-
-        {isLoading ? (
-          <div className="flex items-center justify-center h-40">
-            <span className="h-6 w-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
           </div>
-        ) : (
+
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -120,8 +114,8 @@ function FacturasPage() {
               </tbody>
             </table>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </PageShell>
   );
 }

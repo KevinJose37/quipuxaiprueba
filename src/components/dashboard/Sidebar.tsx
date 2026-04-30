@@ -1,5 +1,6 @@
 import { LayoutDashboard, FileText, Users, ShieldCheck, XOctagon, ScrollText, Sparkles } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { useDashboard } from "@/hooks/use-dashboard";
 
 const items = [
   { icon: LayoutDashboard, label: "Dashboard", to: "/" as const },
@@ -11,15 +12,18 @@ const items = [
 ];
 
 export function Sidebar() {
+  const { data } = useDashboard();
+  const epm = data?.events_per_min;
+
   return (
-    <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r border-border bg-sidebar text-sidebar-foreground">
+    <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r border-border bg-sidebar text-sidebar-foreground sticky top-0 h-screen overflow-y-auto">
       <div className="px-6 py-6 flex items-center gap-2.5 border-b border-sidebar-border">
         <div className="h-9 w-9 rounded-xl flex items-center justify-center" style={{ background: "var(--gradient-primary)" }}>
           <Sparkles className="h-4.5 w-4.5 text-[oklch(0.2_0.03_295)]" strokeWidth={2.5} />
         </div>
         <div>
           <div className="text-[15px] font-semibold tracking-tight">QUIPUX</div>
-          <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">AI Billing</div>
+          <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Director Apolo</div>
         </div>
       </div>
 
@@ -48,10 +52,10 @@ export function Sidebar() {
       <div className="p-4 m-3 rounded-xl border border-sidebar-border bg-sidebar-accent/40">
         <div className="flex items-center gap-2 text-xs font-medium">
           <span className="h-2 w-2 rounded-full bg-brand-lime animate-pulse-dot" />
-          IA Engine activo
+          Actividad del sistema
         </div>
         <p className="text-[11px] text-muted-foreground mt-1.5 leading-snug">
-          Procesando 24 lotes en paralelo · throughput óptimo.
+          {epm ? `${epm.events_per_min} eventos/min · capacidad al ${epm.capacity_pct}%` : "Conectando…"}
         </p>
       </div>
     </aside>

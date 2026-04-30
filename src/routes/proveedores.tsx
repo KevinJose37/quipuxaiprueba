@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Building2, Plus, Search } from "lucide-react";
 import { PageShell } from "@/components/dashboard/PageShell";
 import { useProveedores } from "@/hooks/use-proveedores";
+import { StatCardLoader, TableCardLoader } from "@/components/dashboard/CardLoader";
 
 export const Route = createFileRoute("/proveedores")({
   component: ProveedoresPage,
@@ -34,42 +35,39 @@ function ProveedoresPage() {
   return (
     <PageShell
       title="Proveedores"
-      subtitle="Maestro de proveedores · integraciones ERP activas"
-      actions={
-        <button className="h-9 px-3.5 text-xs rounded-lg font-semibold text-[oklch(0.2_0.03_295)] hover:opacity-90 transition flex items-center gap-1.5" style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}>
-          <Plus className="h-3.5 w-3.5" /> Onboarding
-        </button>
-      }
+      subtitle="Maestro de proveedores · gestión centralizada"
     >
-      <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: "Total proveedores", value: st.total },
-          { label: "Activos", value: st.activos, accent: "text-brand-turquoise" },
-          { label: "Tasa validación promedio", value: `${st.tasa_promedio}%`, accent: "text-brand-lime" },
-          { label: "Integraciones ERP", value: "3", accent: "text-foreground" },
-        ].map((s) => (
-          <div key={s.label} className="rounded-xl border border-border bg-card p-4" style={{ boxShadow: "var(--shadow-card)" }}>
-            <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{s.label}</div>
-            <div className={`mt-1.5 text-2xl font-semibold tabular-nums ${s.accent ?? "text-foreground"}`}>{s.value}</div>
-          </div>
-        ))}
+
+      {/* Stat cards */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {isLoading
+          ? Array.from({ length: 3 }, (_, i) => <StatCardLoader key={i} />)
+          : [
+              { label: "Total proveedores", value: st.total },
+              { label: "Activos", value: st.activos, accent: "text-brand-turquoise" },
+              { label: "Tasa validación promedio", value: `${st.tasa_promedio}%`, accent: "text-brand-lime" },
+            ].map((s) => (
+              <div key={s.label} className="rounded-xl border border-border bg-card p-4" style={{ boxShadow: "var(--shadow-card)" }}>
+                <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{s.label}</div>
+                <div className={`mt-1.5 text-2xl font-semibold tabular-nums ${s.accent ?? "text-foreground"}`}>{s.value}</div>
+              </div>
+            ))}
       </section>
 
-      <div className="rounded-xl border border-border bg-card overflow-hidden" style={{ boxShadow: "var(--shadow-card)" }}>
-        <div className="flex items-center gap-3 p-4 border-b border-border">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input
-              placeholder="Buscar proveedor o CUIT…"
-              className="w-full h-9 pl-10 pr-3 rounded-lg bg-secondary/60 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            />
+      {/* Table */}
+      {isLoading ? (
+        <TableCardLoader className="h-[500px]" />
+      ) : (
+        <div className="rounded-xl border border-border bg-card overflow-hidden" style={{ boxShadow: "var(--shadow-card)" }}>
+          <div className="flex items-center gap-3 p-4 border-b border-border">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input
+                placeholder="Buscar proveedor o CUIT…"
+                className="w-full h-9 pl-10 pr-3 rounded-lg bg-secondary/60 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
           </div>
-        </div>
-        {isLoading ? (
-          <div className="flex items-center justify-center h-40">
-            <span className="h-6 w-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-          </div>
-        ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -78,7 +76,6 @@ function ProveedoresPage() {
                   <th className="text-left font-medium px-3 py-3">CUIT</th>
                   <th className="text-right font-medium px-3 py-3">Facturas</th>
                   <th className="text-left font-medium px-3 py-3">Validación</th>
-                  <th className="text-left font-medium px-3 py-3">ERP</th>
                   <th className="text-left font-medium px-3 py-3">Última sync</th>
                   <th className="text-left font-medium px-5 py-3">Estado</th>
                 </tr>
@@ -104,9 +101,6 @@ function ProveedoresPage() {
                         <span className="text-xs tabular-nums text-muted-foreground">{p.validRate}%</span>
                       </div>
                     </td>
-                    <td className="px-3 py-3.5">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-mono bg-secondary/60 border border-border">{p.erp}</span>
-                    </td>
                     <td className="px-3 py-3.5 text-muted-foreground text-xs">{p.lastSync}</td>
                     <td className="px-5 py-3.5">
                       <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium border ${statusBadge[p.status]}`}>
@@ -119,8 +113,8 @@ function ProveedoresPage() {
               </tbody>
             </table>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </PageShell>
   );
 }

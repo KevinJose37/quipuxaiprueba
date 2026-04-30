@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { XOctagon, RotateCcw } from "lucide-react";
 import { PageShell } from "@/components/dashboard/PageShell";
 import { useRechazos } from "@/hooks/use-rechazos";
+import { StatCardLoader, CardLoader } from "@/components/dashboard/CardLoader";
 
 export const Route = createFileRoute("/rechazos")({
   component: RechazosPage,
@@ -30,35 +31,35 @@ function RechazosPage() {
 
   return (
     <PageShell title="Rechazos" subtitle="Documentos no aceptados · análisis de causas raíz">
+      {/* Stat cards */}
       <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {[
-          { label: "Rechazos hoy", value: st.rechazos_hoy, accent: "text-brand-orange" },
-          { label: "Severidad alta", value: st.severidad_alta, accent: "text-brand-danger" },
-          { label: "Reintentos automáticos", value: st.reintentos, accent: "text-brand-turquoise" },
-          { label: "Tasa de rechazo", value: `${st.tasa_rechazo}%`, accent: "text-foreground" },
-        ].map((s) => (
-          <div key={s.label} className="rounded-xl border border-border bg-card p-4" style={{ boxShadow: "var(--shadow-card)" }}>
-            <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{s.label}</div>
-            <div className={`mt-1.5 text-2xl font-semibold tabular-nums ${s.accent}`}>{s.value}</div>
-          </div>
-        ))}
+        {isLoading
+          ? Array.from({ length: 4 }, (_, i) => <StatCardLoader key={i} />)
+          : [
+              { label: "Rechazos hoy", value: st.rechazos_hoy, accent: "text-brand-orange" },
+              { label: "Severidad alta", value: st.severidad_alta, accent: "text-brand-danger" },
+              { label: "Reintentos automáticos", value: st.reintentos, accent: "text-brand-turquoise" },
+              { label: "Tasa de rechazo", value: `${st.tasa_rechazo}%`, accent: "text-foreground" },
+            ].map((s) => (
+              <div key={s.label} className="rounded-xl border border-border bg-card p-4" style={{ boxShadow: "var(--shadow-card)" }}>
+                <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{s.label}</div>
+                <div className={`mt-1.5 text-2xl font-semibold tabular-nums ${s.accent}`}>{s.value}</div>
+              </div>
+            ))}
       </section>
 
+      {/* Content panels */}
       {isLoading ? (
-        <div className="flex items-center justify-center h-40">
-          <span className="h-6 w-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <CardLoader className="lg:col-span-2 h-[450px]" />
+          <CardLoader className="h-[450px]" />
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 rounded-xl border border-border bg-card overflow-hidden" style={{ boxShadow: "var(--shadow-card)" }}>
-            <div className="p-5 border-b border-border flex items-center justify-between">
-              <div>
-                <h3 className="text-[15px] font-semibold tracking-tight">Documentos rechazados</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">Últimas 24 horas</p>
-              </div>
-              <button className="h-8 px-3 text-xs rounded-lg border border-border bg-secondary/60 hover:bg-secondary transition flex items-center gap-1.5">
-                <RotateCcw className="h-3.5 w-3.5" /> Reintentar todo
-              </button>
+            <div className="p-5 border-b border-border">
+              <h3 className="text-[15px] font-semibold tracking-tight">Documentos rechazados</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">Últimas 24 horas</p>
             </div>
             <div className="divide-y divide-border/60">
               {rejections.map((r, i) => (
