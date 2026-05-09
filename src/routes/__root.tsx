@@ -1,5 +1,7 @@
-import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { Outlet, Link, createRootRoute, HeadContent, Scripts, useRouterState, useNavigate } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AuthProvider, useAuth } from "../hooks/use-auth";
+import { useEffect } from "react";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 20_000, retry: 1 } },
@@ -73,10 +75,30 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+function AppContent() {
+  const { isAuthenticated, isLoading } = useAuth();
+  const navigate = useNavigate();
+  const routerState = useRouterState();
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated && routerState.location.pathname !== "/login") {
+      navigate({ to: "/login", replace: true });
+    }
+  }, [isLoading, isAuthenticated, routerState.location.pathname, navigate]);
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center bg-background"><div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin"></div></div>;
+  }
+
+  return <Outlet />;
+}
+
 function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

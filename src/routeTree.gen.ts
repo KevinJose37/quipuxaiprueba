@@ -15,6 +15,13 @@ import { Route as ProveedoresRouteImport } from './routes/proveedores'
 import { Route as LogsRouteImport } from './routes/logs'
 import { Route as FacturasRouteImport } from './routes/facturas'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LoginRouteImport } from './routes/login'
+
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 const ValidacionesRoute = ValidacionesRouteImport.update({
   id: '/validaciones',
@@ -50,6 +57,7 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/facturas': typeof FacturasRoute
+  '/login': typeof LoginRoute
   '/logs': typeof LogsRoute
   '/proveedores': typeof ProveedoresRoute
   '/rechazos': typeof RechazosRoute
@@ -58,6 +66,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/facturas': typeof FacturasRoute
+  '/login': typeof LoginRoute
   '/logs': typeof LogsRoute
   '/proveedores': typeof ProveedoresRoute
   '/rechazos': typeof RechazosRoute
@@ -67,6 +76,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/facturas': typeof FacturasRoute
+  '/login': typeof LoginRoute
   '/logs': typeof LogsRoute
   '/proveedores': typeof ProveedoresRoute
   '/rechazos': typeof RechazosRoute
@@ -77,6 +87,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/facturas'
+    | '/login'
     | '/logs'
     | '/proveedores'
     | '/rechazos'
@@ -85,6 +96,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/facturas'
+    | '/login'
     | '/logs'
     | '/proveedores'
     | '/rechazos'
@@ -93,6 +105,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/facturas'
+    | '/login'
     | '/logs'
     | '/proveedores'
     | '/rechazos'
@@ -102,6 +115,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FacturasRoute: typeof FacturasRoute
+  LoginRoute: typeof LoginRoute
   LogsRoute: typeof LogsRoute
   ProveedoresRoute: typeof ProveedoresRoute
   RechazosRoute: typeof RechazosRoute
@@ -110,6 +124,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/validaciones': {
       id: '/validaciones'
       path: '/validaciones'
@@ -158,6 +179,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FacturasRoute: FacturasRoute,
+  LoginRoute: LoginRoute,
   LogsRoute: LogsRoute,
   ProveedoresRoute: ProveedoresRoute,
   RechazosRoute: RechazosRoute,

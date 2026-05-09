@@ -12,6 +12,15 @@ export interface EventsPerMin {
   capacity_pct: number;
 }
 
+export interface AlertItem {
+  id: number;
+  type: string;
+  priority: string;
+  title: string;
+  message: string;
+  date: string;
+}
+
 interface DashboardData {
   kpis: Array<{ key: string; label: string; value: string; delta: number; spark: number[]; color: string }>;
   flow_stages: Array<{ id: string; label: string; count: number; status: string }>;
@@ -23,6 +32,7 @@ interface DashboardData {
   invoices: Array<{ id: string; provider: string; type: string; status: string; date: string; time: string }>;
   activity: Array<{ type: string; text: string; time: string }>;
   events_per_min: EventsPerMin;
+  alerts: AlertItem[];
 }
 
 export function useDashboard() {

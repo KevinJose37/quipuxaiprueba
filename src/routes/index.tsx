@@ -7,6 +7,7 @@ import { FlowPipeline } from "@/components/dashboard/FlowPipeline";
 import { DocTypePie, ErrorHeatmap, ProviderBars, TrendLine } from "@/components/dashboard/Charts";
 import { InvoicesTable } from "@/components/dashboard/InvoicesTable";
 import { ActivityPanel } from "@/components/dashboard/ActivityPanel";
+import { AlertsPanel } from "@/components/dashboard/AlertsPanel";
 import { useDashboard } from "@/hooks/use-dashboard";
 import { KpiCardLoader, CardLoader, TableCardLoader } from "@/components/dashboard/CardLoader";
 
@@ -42,6 +43,7 @@ function Index() {
   const invoices = data?.invoices ?? [];
   const activity = data?.activity ?? [];
   const eventsPerMin = data?.events_per_min ?? { events_per_min: 0, capacity_pct: 0 };
+  const alerts = data?.alerts ?? [];
 
   return (
     <div className="flex min-h-screen w-full bg-background text-foreground">
@@ -95,7 +97,8 @@ function Index() {
             </div>
 
             <div className="xl:col-span-1">
-              <div className="xl:sticky xl:top-20">
+              <div className="xl:sticky xl:top-20 space-y-6">
+                {isLoading ? <CardLoader className="h-[300px]" /> : <AlertsPanel alerts={alerts} />}
                 {isLoading ? <CardLoader className="h-[520px]" /> : <ActivityPanel data={activity} eventsPerMin={eventsPerMin} />}
               </div>
             </div>

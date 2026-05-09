@@ -1,0 +1,75 @@
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { API_BASE } from "@/lib/api";
+
+interface User {
+  id_usuario: number;
+  correo: string;
+  nombre_completo: string;
+  rol: string;
+  activo: boolean;
+}
+
+interface AuthContextType {
+  token: string | null;
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (token: string) => Promise<void>;
+  logout: () => void;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const initAuth = async () => {
+      if (token) {
+        try {
+          const res = await fetch(`${API_BASE}/api/auth/me`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (res.ok) {
+            setUser(await res.json());
+          } else {
+            setToken(null);
+            localStorage.removeItem("token");
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      setIsLoading(false);
+    };
+    initAuth();
+  }, [token]);
+
+  const login = async (newToken: string) => {
+    localStorage.setItem("token", newToken);
+    setToken(newToken);
+    // El useEffect se encargará de cargar el usuario al cambiar el token
+  };
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    setToken(null);
+    setUser(null);
+  };
+
+  return (
+    <AuthContext.Provider value={{ token, user, isAuthenticated: !!user, isLoading, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth debe ser usado dentro de AuthProvider");
+  }
+  return context;
+}
