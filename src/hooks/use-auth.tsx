@@ -21,7 +21,12 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
+  const [token, setToken] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("token");
+    }
+    return null;
+  });
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -36,7 +41,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setUser(await res.json());
           } else {
             setToken(null);
-            localStorage.removeItem("token");
+            if (typeof window !== "undefined") {
+              localStorage.removeItem("token");
+            }
           }
         } catch (e) {
           console.error(e);
@@ -48,13 +55,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [token]);
 
   const login = async (newToken: string) => {
-    localStorage.setItem("token", newToken);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("token", newToken);
+    }
     setToken(newToken);
     // El useEffect se encargará de cargar el usuario al cambiar el token
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("token");
+    }
     setToken(null);
     setUser(null);
   };
