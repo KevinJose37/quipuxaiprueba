@@ -32,7 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const initAuth = async () => {
-      if (token) {
+      if (token && !user) {
         try {
           const res = await fetch(`${API_BASE}/api/auth/me`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -59,7 +59,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("token", newToken);
     }
     setToken(newToken);
-    // El useEffect se encargará de cargar el usuario al cambiar el token
+    
+    // Obtenemos el usuario inmediatamente para que navigate() no se bloquee por falta de estado
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/me`, {
+        headers: { Authorization: `Bearer ${newToken}` },
+      });
+      if (res.ok) {
+        setUser(await res.json());
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const logout = () => {
