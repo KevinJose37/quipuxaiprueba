@@ -124,3 +124,21 @@ export function useUsuarios() {
     deleteMutation,
   };
 }
+
+export function useUsuariosBasico() {
+  const { token } = useAuth();
+  
+  const fetchUsuariosBasico = async (): Promise<{ id_usuario: number; nombre_completo: string }[]> => {
+    const res = await fetch(`${API_BASE}/api/usuarios/activos`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error("Error cargando lista básica de usuarios");
+    return res.json();
+  };
+
+  return useQuery({
+    queryKey: ["usuarios", "basico"],
+    queryFn: fetchUsuariosBasico,
+    enabled: !!token,
+  });
+}

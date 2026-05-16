@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Download, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { PageShell } from "@/components/dashboard/PageShell";
 import { useControl, useUpdateControl } from "@/hooks/use-control";
+import { useUsuariosBasico } from "@/hooks/use-usuarios";
 import { StatCardLoader, TableCardLoader } from "@/components/dashboard/CardLoader";
 import { API_BASE } from "@/lib/api";
 import type { ControlItem } from "@/hooks/use-control";
@@ -39,6 +40,7 @@ function ControlPage() {
 
   const { data, isLoading } = useControl(appliedInicio, appliedFin, page, 20);
   const mutation = useUpdateControl();
+  const usuariosQuery = useUsuariosBasico();
 
   const items = data?.items ?? [];
   const pag = data?.pagination ?? { page: 1, size: 20, total_records: 0, total_pages: 0 };
@@ -205,17 +207,22 @@ function ControlPage() {
 
                     {/* Nombre recibe contabilidad — editable */}
                     <td className="px-3 py-1.5">
-                      <input
-                        type="text"
-                        defaultValue={item.nombre_recibe_contabilidad}
-                        onBlur={(e) => {
+                      <select
+                        defaultValue={item.nombre_recibe_contabilidad || ""}
+                        onChange={(e) => {
                           if (e.target.value !== item.nombre_recibe_contabilidad) {
                             updateField(item, "nombre_recibe_contabilidad", e.target.value);
                           }
                         }}
-                        className="w-full h-8 px-2 rounded-md bg-secondary/40 border border-transparent text-sm focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-ring transition"
-                        placeholder="—"
-                      />
+                        className="w-full h-8 px-2 rounded-md bg-secondary/40 border border-transparent text-sm focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-ring transition text-foreground"
+                      >
+                        <option value="">— Seleccionar —</option>
+                        {usuariosQuery.data?.map(u => (
+                          <option key={u.id_usuario} value={u.nombre_completo}>
+                            {u.nombre_completo}
+                          </option>
+                        ))}
+                      </select>
                     </td>
 
                     {/* NIT — solo lectura */}
