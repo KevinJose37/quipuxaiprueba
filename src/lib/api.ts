@@ -1,17 +1,28 @@
 export const API_BASE = import.meta.env.VITE_API_URL ?? "";
 
 export async function fetchApi<T>(path: string): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`);
+  const token = localStorage.getItem("token");
+  const headers: HeadersInit = {};
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  const res = await fetch(`${API_BASE}${path}`, { headers });
   if (!res.ok) {
+    if (res.status === 401) {
+      // Optional: trigger logout
+    }
     throw new Error(`API error ${res.status}: ${res.statusText}`);
   }
   return res.json();
 }
 
 export async function patchApi<T>(path: string, body: unknown): Promise<T> {
+  const token = localStorage.getItem("token");
+  const headers: HeadersInit = { "Content-Type": "application/json" };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
   const res = await fetch(`${API_BASE}${path}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(body),
   });
   if (!res.ok) {
