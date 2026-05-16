@@ -31,6 +31,22 @@ export async function patchApi<T>(path: string, body: unknown): Promise<T> {
   return res.json();
 }
 
+export async function postApi<T>(path: string, body: unknown): Promise<T> {
+  const token = localStorage.getItem("token");
+  const headers: HeadersInit = { "Content-Type": "application/json" };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    throw new Error(`API error ${res.status}: ${res.statusText}`);
+  }
+  return res.json();
+}
+
 export function downloadFile(path: string, filename: string) {
   const url = `${API_BASE}${path}`;
   const a = document.createElement("a");
