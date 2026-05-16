@@ -23,6 +23,24 @@ export function Header() {
 
   const initials = user ? getInitials(user.nombre_completo) : "U";
 
+  const getStatusColor = () => {
+    if (isError || health?.status === "error") return "bg-brand-danger";
+    if (health?.status === "degraded") return "bg-brand-orange";
+    return "bg-brand-turquoise";
+  };
+
+  const getStatusTextColor = () => {
+    if (isError || health?.status === "error") return "text-brand-danger";
+    if (health?.status === "degraded") return "text-brand-orange";
+    return "text-primary";
+  };
+
+  const getStatusText = () => {
+    if (isError || health?.status === "error") return "Offline";
+    if (health?.status === "degraded") return "Degraded";
+    return "Online";
+  };
+
   return (
     <>
       <header className="sticky top-0 z-20 flex items-center justify-end gap-4 px-6 lg:px-8 h-16 border-b border-border bg-background/80 backdrop-blur-xl">
@@ -33,16 +51,12 @@ export function Header() {
 
         <div className="hidden md:flex items-center gap-2 h-10 px-3.5 rounded-lg border border-border bg-secondary/60 text-sm">
           <span className="relative flex h-2 w-2">
-            <span className={`absolute inline-flex h-full w-full rounded-full opacity-60 animate-pulse-dot ${
-              isError || health?.status === "error" ? "bg-brand-danger" : "bg-brand-turquoise"
-            }`} />
-            <span className={`relative inline-flex h-2 w-2 rounded-full ${
-              isError || health?.status === "error" ? "bg-brand-danger" : "bg-brand-turquoise"
-            }`} />
+            <span className={`absolute inline-flex h-full w-full rounded-full opacity-60 animate-pulse-dot ${getStatusColor()}`} />
+            <span className={`relative inline-flex h-2 w-2 rounded-full ${getStatusColor()}`} />
           </span>
           <span className="text-foreground font-medium">Sistema</span>
-          <span className={isError || health?.status === "error" ? "text-brand-danger" : "text-primary"}>
-            {isError || health?.status === "error" ? "Offline" : "Online"}
+          <span className={getStatusTextColor()}>
+            {getStatusText()}
           </span>
         </div>
 
