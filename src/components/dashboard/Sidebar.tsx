@@ -1,8 +1,9 @@
-import { LayoutDashboard, FileText, Users, ShieldCheck, XOctagon, ScrollText, Sparkles, ClipboardList } from "lucide-react";
+import { LayoutDashboard, FileText, Users, ShieldCheck, XOctagon, ScrollText, Sparkles, ClipboardList, UserCog } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useDashboard } from "@/hooks/use-dashboard";
+import { useAuth } from "@/hooks/use-auth";
 
-const items = [
+const baseItems = [
   { icon: LayoutDashboard, label: "Dashboard", to: "/" as const },
   { icon: FileText, label: "Facturas", to: "/facturas" as const },
   { icon: Users, label: "Proveedores", to: "/proveedores" as const },
@@ -14,7 +15,12 @@ const items = [
 
 export function Sidebar() {
   const { data } = useDashboard();
+  const { user } = useAuth();
   const epm = data?.events_per_min;
+
+  const items = user?.rol === "admin" 
+    ? [...baseItems, { icon: UserCog, label: "Usuarios", to: "/usuarios" as const }]
+    : baseItems;
 
   return (
     <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r border-border bg-sidebar text-sidebar-foreground sticky top-0 h-screen overflow-y-auto">

@@ -10,23 +10,23 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ValidacionesRouteImport } from './routes/validaciones'
+import { Route as UsuariosRouteImport } from './routes/usuarios'
 import { Route as RechazosRouteImport } from './routes/rechazos'
 import { Route as ProveedoresRouteImport } from './routes/proveedores'
 import { Route as LogsRouteImport } from './routes/logs'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as FacturasRouteImport } from './routes/facturas'
 import { Route as ControlRouteImport } from './routes/control'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as LoginRouteImport } from './routes/login'
-
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 const ValidacionesRoute = ValidacionesRouteImport.update({
   id: '/validaciones',
   path: '/validaciones',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UsuariosRoute = UsuariosRouteImport.update({
+  id: '/usuarios',
+  path: '/usuarios',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RechazosRoute = RechazosRouteImport.update({
@@ -42,6 +42,11 @@ const ProveedoresRoute = ProveedoresRouteImport.update({
 const LogsRoute = LogsRouteImport.update({
   id: '/logs',
   path: '/logs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FacturasRoute = FacturasRouteImport.update({
@@ -68,6 +73,7 @@ export interface FileRoutesByFullPath {
   '/logs': typeof LogsRoute
   '/proveedores': typeof ProveedoresRoute
   '/rechazos': typeof RechazosRoute
+  '/usuarios': typeof UsuariosRoute
   '/validaciones': typeof ValidacionesRoute
 }
 export interface FileRoutesByTo {
@@ -78,6 +84,7 @@ export interface FileRoutesByTo {
   '/logs': typeof LogsRoute
   '/proveedores': typeof ProveedoresRoute
   '/rechazos': typeof RechazosRoute
+  '/usuarios': typeof UsuariosRoute
   '/validaciones': typeof ValidacionesRoute
 }
 export interface FileRoutesById {
@@ -89,6 +96,7 @@ export interface FileRoutesById {
   '/logs': typeof LogsRoute
   '/proveedores': typeof ProveedoresRoute
   '/rechazos': typeof RechazosRoute
+  '/usuarios': typeof UsuariosRoute
   '/validaciones': typeof ValidacionesRoute
 }
 export interface FileRouteTypes {
@@ -101,6 +109,7 @@ export interface FileRouteTypes {
     | '/logs'
     | '/proveedores'
     | '/rechazos'
+    | '/usuarios'
     | '/validaciones'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -111,6 +120,7 @@ export interface FileRouteTypes {
     | '/logs'
     | '/proveedores'
     | '/rechazos'
+    | '/usuarios'
     | '/validaciones'
   id:
     | '__root__'
@@ -121,6 +131,7 @@ export interface FileRouteTypes {
     | '/logs'
     | '/proveedores'
     | '/rechazos'
+    | '/usuarios'
     | '/validaciones'
   fileRoutesById: FileRoutesById
 }
@@ -132,23 +143,24 @@ export interface RootRouteChildren {
   LogsRoute: typeof LogsRoute
   ProveedoresRoute: typeof ProveedoresRoute
   RechazosRoute: typeof RechazosRoute
+  UsuariosRoute: typeof UsuariosRoute
   ValidacionesRoute: typeof ValidacionesRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/validaciones': {
       id: '/validaciones'
       path: '/validaciones'
       fullPath: '/validaciones'
       preLoaderRoute: typeof ValidacionesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/usuarios': {
+      id: '/usuarios'
+      path: '/usuarios'
+      fullPath: '/usuarios'
+      preLoaderRoute: typeof UsuariosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/rechazos': {
@@ -170,6 +182,13 @@ declare module '@tanstack/react-router' {
       path: '/logs'
       fullPath: '/logs'
       preLoaderRoute: typeof LogsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/facturas': {
@@ -204,6 +223,7 @@ const rootRouteChildren: RootRouteChildren = {
   LogsRoute: LogsRoute,
   ProveedoresRoute: ProveedoresRoute,
   RechazosRoute: RechazosRoute,
+  UsuariosRoute: UsuariosRoute,
   ValidacionesRoute: ValidacionesRoute,
 }
 export const routeTree = rootRouteImport

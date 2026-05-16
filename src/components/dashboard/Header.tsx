@@ -1,10 +1,25 @@
 import { useState } from "react";
-import { Calendar } from "lucide-react";
+import { Calendar, LogOut, User } from "lucide-react";
 import { InntiIcon } from "./InntiIcon";
 import { ChatPanel } from "./ChatPanel";
+import { useAuth } from "@/hooks/use-auth";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export function Header() {
   const [chatOpen, setChatOpen] = useState(false);
+  const { user, logout } = useAuth();
+
+  // Obtener iniciales dinámicas
+  const getInitials = (name: string) => {
+    if (!name) return "U";
+    const parts = name.trim().split(" ");
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
+
+  const initials = user ? getInitials(user.nombre_completo) : "U";
 
   return (
     <>
@@ -34,9 +49,27 @@ export function Header() {
           <span className="absolute inset-0 rounded-xl border border-primary/0 group-hover:border-primary/20 transition-all" />
         </button>
 
-        <div className="h-10 w-10 rounded-full flex items-center justify-center text-sm font-semibold text-[oklch(0.2_0.03_295)]" style={{ background: "var(--gradient-primary)" }}>
-          MQ
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="h-10 w-10 rounded-full flex items-center justify-center text-sm font-semibold text-[oklch(0.2_0.03_295)] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background transition-transform hover:scale-105" style={{ background: "var(--gradient-primary)" }}>
+              {initials}
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56 bg-secondary border-border shadow-2xl">
+            <DropdownMenuLabel>
+              <div className="flex flex-col space-y-1">
+                <p className="text-sm font-medium leading-none text-foreground">{user?.nombre_completo || "Usuario"}</p>
+                <p className="text-xs leading-none text-muted-foreground">{user?.correo || ""}</p>
+                <p className="text-[10px] uppercase font-bold text-primary mt-1">{user?.rol || ""}</p>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-border" />
+            <DropdownMenuItem className="cursor-pointer text-red-400 focus:text-red-300 focus:bg-red-400/10" onClick={logout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Cerrar sesión</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </header>
 
       <ChatPanel open={chatOpen} onClose={() => setChatOpen(false)} />

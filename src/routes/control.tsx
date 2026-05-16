@@ -159,7 +159,7 @@ function ControlPage() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-sm" style={{ minWidth: "1400px" }}>
+            <table className="w-full text-sm" style={{ minWidth: "1000px" }}>
               <thead>
                 <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-secondary/30">
                   <th className="text-left font-medium px-4 py-3 whitespace-nowrap">Fecha emisión</th>
@@ -170,11 +170,10 @@ function ControlPage() {
                   <th className="text-left font-medium px-3 py-3 whitespace-nowrap">Descripción</th>
                   <th className="text-left font-medium px-3 py-3 whitespace-nowrap">No. Factura</th>
                   <th className="text-left font-medium px-3 py-3 whitespace-nowrap">Forma pago</th>
-                  <th className="text-center font-medium px-3 py-3 whitespace-nowrap">Acuse recibido</th>
-                  <th className="text-center font-medium px-3 py-3 whitespace-nowrap">Recibo bien/serv.</th>
-                  <th className="text-center font-medium px-3 py-3 whitespace-nowrap">Aceptación expresa</th>
+                  <th className="text-center font-medium px-3 py-3 whitespace-nowrap">Acuse recibido (030)</th>
+                  <th className="text-center font-medium px-3 py-3 whitespace-nowrap">Recibo bien/serv. (032)</th>
+                  <th className="text-center font-medium px-3 py-3 whitespace-nowrap">Aceptación expresa (033)</th>
                   <th className="text-left font-medium px-3 py-3 whitespace-nowrap">Observaciones</th>
-                  <th className="text-left font-medium px-3 py-3 whitespace-nowrap">Evento DIAN</th>
                 </tr>
               </thead>
               <tbody>
@@ -193,7 +192,7 @@ function ControlPage() {
                     {/* Fecha entrega contabilidad — editable */}
                     <td className="px-3 py-1.5">
                       <input
-                        type="text"
+                        type="date"
                         defaultValue={item.fecha_entrega_contabilidad}
                         onBlur={(e) => {
                           if (e.target.value !== item.fecha_entrega_contabilidad) {
@@ -201,7 +200,6 @@ function ControlPage() {
                           }
                         }}
                         className="w-full h-8 px-2 rounded-md bg-secondary/40 border border-transparent text-sm focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-ring transition"
-                        placeholder="—"
                       />
                     </td>
 
@@ -248,13 +246,13 @@ function ControlPage() {
                     <td className="px-3 py-2.5 text-center">
                       <button
                         onClick={() => updateField(item, "acuso_recibido", !item.acuso_recibido)}
-                        className={`h-6 w-11 rounded-full relative transition-colors ${
+                        className={`inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${
                           item.acuso_recibido ? "bg-brand-turquoise" : "bg-secondary"
                         }`}
                       >
                         <span
-                          className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-                            item.acuso_recibido ? "translate-x-5" : "translate-x-0.5"
+                          className={`pointer-events-none block h-4 w-4 rounded-full bg-white shadow-lg ring-0 transition-transform ${
+                            item.acuso_recibido ? "translate-x-4" : "translate-x-0"
                           }`}
                         />
                       </button>
@@ -264,13 +262,13 @@ function ControlPage() {
                     <td className="px-3 py-2.5 text-center">
                       <button
                         onClick={() => updateField(item, "recibido_bien_servicio", !item.recibido_bien_servicio)}
-                        className={`h-6 w-11 rounded-full relative transition-colors ${
+                        className={`inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${
                           item.recibido_bien_servicio ? "bg-brand-turquoise" : "bg-secondary"
                         }`}
                       >
                         <span
-                          className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-                            item.recibido_bien_servicio ? "translate-x-5" : "translate-x-0.5"
+                          className={`pointer-events-none block h-4 w-4 rounded-full bg-white shadow-lg ring-0 transition-transform ${
+                            item.recibido_bien_servicio ? "translate-x-4" : "translate-x-0"
                           }`}
                         />
                       </button>
@@ -280,13 +278,13 @@ function ControlPage() {
                     <td className="px-3 py-2.5 text-center">
                       <button
                         onClick={() => updateField(item, "aceptacion_empresa", !item.aceptacion_empresa)}
-                        className={`h-6 w-11 rounded-full relative transition-colors ${
+                        className={`inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${
                           item.aceptacion_empresa ? "bg-brand-turquoise" : "bg-secondary"
                         }`}
                       >
                         <span
-                          className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-                            item.aceptacion_empresa ? "translate-x-5" : "translate-x-0.5"
+                          className={`pointer-events-none block h-4 w-4 rounded-full bg-white shadow-lg ring-0 transition-transform ${
+                            item.aceptacion_empresa ? "translate-x-4" : "translate-x-0"
                           }`}
                         />
                       </button>
@@ -306,27 +304,12 @@ function ControlPage() {
                         placeholder="—"
                       />
                     </td>
-
-                    {/* Evento DIAN — editable */}
-                    <td className="px-3 py-1.5">
-                      <input
-                        type="text"
-                        defaultValue={item.eventos_dian_notif}
-                        onBlur={(e) => {
-                          if (e.target.value !== item.eventos_dian_notif) {
-                            updateField(item, "eventos_dian_notif", e.target.value);
-                          }
-                        }}
-                        className="w-full h-8 px-2 rounded-md bg-secondary/40 border border-transparent text-sm focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-ring transition min-w-[120px]"
-                        placeholder="—"
-                      />
-                    </td>
                   </tr>
                 ))}
 
                 {items.length === 0 && (
                   <tr>
-                    <td colSpan={13} className="px-4 py-12 text-center text-muted-foreground">
+                    <td colSpan={12} className="px-4 py-12 text-center text-muted-foreground">
                       No se encontraron registros para el rango de fechas seleccionado.
                     </td>
                   </tr>
