@@ -1,4 +1,4 @@
-import { LayoutDashboard, FileText, Users, ShieldCheck, XOctagon, ScrollText, Sparkles } from "lucide-react";
+import { LayoutDashboard, FileText, Users, ShieldCheck, XOctagon, ScrollText, Sparkles, ClipboardList } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useDashboard } from "@/hooks/use-dashboard";
 
@@ -8,6 +8,7 @@ const items = [
   { icon: Users, label: "Proveedores", to: "/proveedores" as const },
   { icon: ShieldCheck, label: "Validaciones", to: "/validaciones" as const },
   { icon: XOctagon, label: "Rechazos", to: "/rechazos" as const },
+  { icon: ClipboardList, label: "Control", to: "/control" as const },
   { icon: ScrollText, label: "Logs", to: "/logs" as const },
 ];
 

@@ -14,6 +14,7 @@ import { Route as RechazosRouteImport } from './routes/rechazos'
 import { Route as ProveedoresRouteImport } from './routes/proveedores'
 import { Route as LogsRouteImport } from './routes/logs'
 import { Route as FacturasRouteImport } from './routes/facturas'
+import { Route as ControlRouteImport } from './routes/control'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LoginRouteImport } from './routes/login'
 
@@ -48,6 +49,11 @@ const FacturasRoute = FacturasRouteImport.update({
   path: '/facturas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ControlRoute = ControlRouteImport.update({
+  id: '/control',
+  path: '/control',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -56,6 +62,7 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/control': typeof ControlRoute
   '/facturas': typeof FacturasRoute
   '/login': typeof LoginRoute
   '/logs': typeof LogsRoute
@@ -65,6 +72,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/control': typeof ControlRoute
   '/facturas': typeof FacturasRoute
   '/login': typeof LoginRoute
   '/logs': typeof LogsRoute
@@ -75,6 +83,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/control': typeof ControlRoute
   '/facturas': typeof FacturasRoute
   '/login': typeof LoginRoute
   '/logs': typeof LogsRoute
@@ -86,6 +95,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/control'
     | '/facturas'
     | '/login'
     | '/logs'
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/control'
     | '/facturas'
     | '/login'
     | '/logs'
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/control'
     | '/facturas'
     | '/login'
     | '/logs'
@@ -114,6 +126,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ControlRoute: typeof ControlRoute
   FacturasRoute: typeof FacturasRoute
   LoginRoute: typeof LoginRoute
   LogsRoute: typeof LogsRoute
@@ -166,6 +179,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FacturasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/control': {
+      id: '/control'
+      path: '/control'
+      fullPath: '/control'
+      preLoaderRoute: typeof ControlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -178,6 +198,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ControlRoute: ControlRoute,
   FacturasRoute: FacturasRoute,
   LoginRoute: LoginRoute,
   LogsRoute: LogsRoute,
