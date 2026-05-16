@@ -21,6 +21,11 @@ export interface AlertItem {
   date: string;
 }
 
+export interface AlertasDianData {
+  fecha_ejecucion: string;
+  alertas: Record<string, { label: string; total: number; detalle: any }>;
+}
+
 interface DashboardData {
   kpis: Array<{ key: string; label: string; value: string; delta: number; spark: number[]; color: string }>;
   flow_stages: Array<{ id: string; label: string; count: number; status: string }>;
@@ -30,7 +35,7 @@ interface DashboardData {
   trend_data: Array<{ day: string; procesadas: number; validadas: number }>;
   heatmap_data: Array<{ day: string; hour: number; value: number }>;
   invoices: Array<{ id: string; provider: string; type: string; status: string; date: string; time: string }>;
-  activity: Array<{ type: string; text: string; time: string }>;
+  alertas_dian: AlertasDianData;
   events_per_min: EventsPerMin;
   alerts: AlertItem[];
 }

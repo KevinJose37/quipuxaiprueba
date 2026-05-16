@@ -3,11 +3,13 @@ import { Calendar, LogOut, User } from "lucide-react";
 import { InntiIcon } from "./InntiIcon";
 import { ChatPanel } from "./ChatPanel";
 import { useAuth } from "@/hooks/use-auth";
+import { useHealth } from "@/hooks/use-health";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export function Header() {
   const [chatOpen, setChatOpen] = useState(false);
   const { user, logout } = useAuth();
+  const { data: health, isError } = useHealth();
 
   // Obtener iniciales dinámicas
   const getInitials = (name: string) => {
@@ -31,11 +33,17 @@ export function Header() {
 
         <div className="hidden md:flex items-center gap-2 h-10 px-3.5 rounded-lg border border-border bg-secondary/60 text-sm">
           <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full rounded-full bg-brand-turquoise opacity-60 animate-pulse-dot" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-turquoise" />
+            <span className={`absolute inline-flex h-full w-full rounded-full opacity-60 animate-pulse-dot ${
+              isError || health?.status === "error" ? "bg-brand-danger" : "bg-brand-turquoise"
+            }`} />
+            <span className={`relative inline-flex h-2 w-2 rounded-full ${
+              isError || health?.status === "error" ? "bg-brand-danger" : "bg-brand-turquoise"
+            }`} />
           </span>
           <span className="text-foreground font-medium">Sistema</span>
-          <span className="text-primary">Online</span>
+          <span className={isError || health?.status === "error" ? "text-brand-danger" : "text-primary"}>
+            {isError || health?.status === "error" ? "Offline" : "Online"}
+          </span>
         </div>
 
         {/* Innti Chat button */}

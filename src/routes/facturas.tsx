@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Download, Filter, Plus, Search } from "lucide-react";
+import { useState } from "react";
+import { Download, Plus, Search } from "lucide-react";
 import { PageShell } from "@/components/dashboard/PageShell";
 import { useFacturas } from "@/hooks/use-facturas";
 import { StatCardLoader, TableCardLoader } from "@/components/dashboard/CardLoader";
@@ -22,7 +23,12 @@ const statusStyles: Record<string, string> = {
 };
 
 function FacturasPage() {
-  const { data, isLoading } = useFacturas();
+  const [busqueda, setBusqueda] = useState("");
+  const [estado, setEstado] = useState("Todas");
+  
+  const estadoBackend = estado === "Todas" ? undefined : estado.toLowerCase().slice(0, -1);
+  
+  const { data, isLoading } = useFacturas(estadoBackend, busqueda);
 
   const allInvoices = data?.invoices ?? [];
   const s = data?.stats ?? { total: 0, validadas: 0, pendientes: 0, rechazadas: 0, monto_total: 0 };
@@ -63,22 +69,22 @@ function FacturasPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
                 placeholder="Buscar por número, proveedor o monto…"
-                className="w-full h-9 pl-10 pr-3 rounded-lg bg-secondary/60 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                className="w-full h-9 pl-10 pr-3 rounded-lg bg-secondary/60 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
               />
             </div>
-            {["Todas", "Validadas", "Pendientes", "Rechazadas"].map((t, i) => (
+            {["Todas", "Validadas", "Pendientes", "Rechazadas"].map((t) => (
               <button
                 key={t}
+                onClick={() => setEstado(t)}
                 className={`h-9 px-3 text-xs rounded-lg border transition ${
-                  i === 0 ? "bg-primary/15 border-primary/30 text-primary" : "border-border bg-secondary/60 text-muted-foreground hover:text-foreground"
+                  estado === t ? "bg-primary/15 border-primary/30 text-primary" : "border-border bg-secondary/60 text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {t}
               </button>
             ))}
-            <button className="h-9 px-3 text-xs rounded-lg border border-border bg-secondary/60 flex items-center gap-1.5">
-              <Filter className="h-3.5 w-3.5" /> Filtros
-            </button>
           </div>
 
           <div className="overflow-x-auto">

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Building2, Plus, Search } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Building2, Search } from "lucide-react";
 import { PageShell } from "@/components/dashboard/PageShell";
 import { useProveedores } from "@/hooks/use-proveedores";
 import { StatCardLoader, TableCardLoader } from "@/components/dashboard/CardLoader";
@@ -27,9 +28,15 @@ const statusLabel: Record<string, string> = {
 };
 
 function ProveedoresPage() {
+  const [busqueda, setBusqueda] = useState("");
   const { data, isLoading } = useProveedores();
 
   const providers = data?.providers ?? [];
+  const filteredProviders = useMemo(() => {
+    if (!busqueda) return providers;
+    const q = busqueda.toLowerCase();
+    return providers.filter(p => p.name.toLowerCase().includes(q) || p.cuit.toLowerCase().includes(q));
+  }, [busqueda, providers]);
   const st = data?.stats ?? { total: 0, activos: 0, tasa_promedio: 0 };
 
   return (
@@ -64,7 +71,9 @@ function ProveedoresPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
                 placeholder="Buscar proveedor o CUIT…"
-                className="w-full h-9 pl-10 pr-3 rounded-lg bg-secondary/60 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                className="w-full h-9 pl-10 pr-3 rounded-lg bg-secondary/60 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
               />
             </div>
           </div>
@@ -81,7 +90,7 @@ function ProveedoresPage() {
                 </tr>
               </thead>
               <tbody>
-                {providers.map((p, i) => (
+                {filteredProviders.map((p, i) => (
                   <tr key={p.cuit} className="border-t border-border/60 hover:bg-secondary/30 transition animate-fade-in-up" style={{ animationDelay: `${i * 30}ms` }}>
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-2.5">

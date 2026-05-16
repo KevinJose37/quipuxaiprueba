@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Search, Download } from "lucide-react";
 import { PageShell } from "@/components/dashboard/PageShell";
@@ -22,7 +23,12 @@ const levelStyle: Record<string, string> = {
 };
 
 function LogsPage() {
-  const { data, isLoading } = useLogs();
+  const [busqueda, setBusqueda] = useState("");
+  const [nivel, setNivel] = useState("Todos");
+  
+  const nivelBackend = nivel === "Todos" ? undefined : nivel.toLowerCase();
+  
+  const { data, isLoading } = useLogs(nivelBackend, busqueda);
 
   const logs = data?.logs ?? [];
   const st = data?.stats ?? { total_24h: 0, info: 0, warn: 0, error: 0 };
@@ -38,7 +44,7 @@ function LogsPage() {
         {isLoading
           ? Array.from({ length: 4 }, (_, i) => <StatCardLoader key={i} />)
           : [
-              { label: "Eventos (24h)", value: st.total_24h, accent: "text-foreground" },
+              { label: "Eventos (30d)", value: st.total_24h, accent: "text-foreground" },
               { label: "Info", value: st.info, accent: "text-brand-turquoise" },
               { label: "Warnings", value: st.warn, accent: "text-brand-lime" },
               { label: "Errores", value: st.error, accent: "text-brand-danger" },
@@ -60,14 +66,17 @@ function LogsPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
                 placeholder="Buscar en logs…"
-                className="w-full h-9 pl-10 pr-3 rounded-lg bg-secondary/60 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                className="w-full h-9 pl-10 pr-3 rounded-lg bg-secondary/60 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
               />
             </div>
-            {["Todos", "Info", "Warn", "Error", "Debug"].map((t, i) => (
+            {["Todos", "Info", "Warn", "Error", "Debug"].map((t) => (
               <button
                 key={t}
+                onClick={() => setNivel(t)}
                 className={`h-9 px-3 text-xs rounded-lg border transition ${
-                  i === 0 ? "bg-primary/15 border-primary/30 text-primary" : "border-border bg-secondary/60 text-muted-foreground hover:text-foreground"
+                  nivel === t ? "bg-primary/15 border-primary/30 text-primary" : "border-border bg-secondary/60 text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {t}

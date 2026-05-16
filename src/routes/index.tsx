@@ -41,7 +41,7 @@ function Index() {
   const trendData = data?.trend_data ?? [];
   const heatmapData = data?.heatmap_data ?? [];
   const invoices = data?.invoices ?? [];
-  const activity = data?.activity ?? [];
+  const alertasDian = data?.alertas_dian ?? { fecha_ejecucion: "", alertas: {} };
   const eventsPerMin = data?.events_per_min ?? { events_per_min: 0, capacity_pct: 0 };
   const alerts = data?.alerts ?? [];
 
@@ -99,7 +99,7 @@ function Index() {
             <div className="xl:col-span-1">
               <div className="xl:sticky xl:top-20 space-y-6">
                 {isLoading ? <CardLoader className="h-[300px]" /> : <AlertsPanel alerts={alerts} />}
-                {isLoading ? <CardLoader className="h-[520px]" /> : <ActivityPanel data={activity} eventsPerMin={eventsPerMin} />}
+                {isLoading ? <CardLoader className="h-[520px]" /> : <ActivityPanel alertasDian={alertasDian} eventsPerMin={eventsPerMin} />}
               </div>
             </div>
           </section>

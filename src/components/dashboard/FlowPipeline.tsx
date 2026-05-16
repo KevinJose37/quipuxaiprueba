@@ -28,12 +28,12 @@ export function FlowPipeline({ stages, indicators }: Props) {
     <div className="rounded-xl border border-border bg-card p-6" style={{ boxShadow: "var(--shadow-card)" }}>
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h3 className="text-[15px] font-semibold tracking-tight">Flujo de facturación en tiempo real</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">Pipeline automatizado · monitoreo continuo</p>
+          <h3 className="text-[15px] font-semibold tracking-tight">Flujo de facturación (Últimos 30 días)</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">Pipeline automatizado · datos de prueba</p>
         </div>
         <span className="text-[11px] text-primary font-medium flex items-center gap-1.5">
           <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse-dot" />
-          EN VIVO
+          DATOS HISTÓRICOS
         </span>
       </div>
 
