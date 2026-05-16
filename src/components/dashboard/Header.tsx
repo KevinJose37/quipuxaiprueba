@@ -5,9 +5,12 @@ import { ChatPanel } from "./ChatPanel";
 import { useAuth } from "@/hooks/use-auth";
 import { useHealth } from "@/hooks/use-health";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { SelfUpdateModal } from "./SelfUpdateModal";
+import { Settings } from "lucide-react";
 
 export function Header() {
   const [chatOpen, setChatOpen] = useState(false);
+  const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const { user, logout } = useAuth();
   const { data: health, isError } = useHealth();
 
@@ -86,6 +89,13 @@ export function Header() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator className="bg-border" />
+            
+            <DropdownMenuItem className="cursor-pointer focus:bg-secondary/80" onClick={() => setUpdateModalOpen(true)}>
+              <Settings className="mr-2 h-4 w-4 text-muted-foreground" />
+              <span>Actualizar datos</span>
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator className="bg-border" />
             <DropdownMenuItem className="cursor-pointer text-red-400 focus:text-red-300 focus:bg-red-400/10" onClick={logout}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Cerrar sesión</span>
@@ -95,6 +105,7 @@ export function Header() {
       </header>
 
       <ChatPanel open={chatOpen} onClose={() => setChatOpen(false)} />
+      <SelfUpdateModal isOpen={updateModalOpen} onClose={() => setUpdateModalOpen(false)} />
     </>
   );
 }
