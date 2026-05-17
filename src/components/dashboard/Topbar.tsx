@@ -102,9 +102,9 @@ export function Topbar() {
   };
 
   const getStatusText = () => {
-    if (isError || health?.status === "error") return "Offline";
-    if (health?.status === "degraded") return "Degraded";
-    return "Online";
+    if (isError || health?.status === "error") return "Crítico";
+    if (health?.status === "degraded") return "Parcial";
+    return "Estable";
   };
 
   /* ---------- shared nav link renderer ---------- */
@@ -223,6 +223,28 @@ export function Topbar() {
                       ? `${epm.events_per_min} eventos/min · capacidad al ${epm.capacity_pct}%`
                       : "Conectando…"}
                   </p>
+                  {health && health.status !== "ok" && (
+                    <div className="mt-2 pt-2 border-t border-border space-y-1.5">
+                      {health.services.database === "down" && (
+                        <p className="text-[11px] text-brand-danger flex items-center gap-1.5 leading-snug">
+                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-danger"></span>
+                          La conexión a la base de datos ha fallado
+                        </p>
+                      )}
+                      {health.services.llm_api === "down" && (
+                        <p className="text-[11px] text-brand-orange flex items-center gap-1.5 leading-snug">
+                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-orange"></span>
+                          El asistente de inteligencia artificial está fallando
+                        </p>
+                      )}
+                      {(!health.services || (health.services.database !== "down" && health.services.llm_api !== "down")) && (
+                        <p className="text-[11px] text-brand-danger flex items-center gap-1.5 leading-snug">
+                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-danger"></span>
+                          No se puede conectar con el servidor
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

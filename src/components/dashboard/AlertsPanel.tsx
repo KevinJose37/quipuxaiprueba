@@ -23,11 +23,17 @@ interface Props {
 }
 
 export function AlertsPanel({ alerts }: Props) {
-  if (!alerts || alerts.length === 0) {
+  const recentAlerts = alerts?.filter((a) => {
+    if (!a.date) return false;
+    const alertTime = new Date(a.date).getTime();
+    return (Date.now() - alertTime) <= 24 * 60 * 60 * 1000;
+  }) || [];
+
+  if (recentAlerts.length === 0) {
     return (
       <div className="rounded-xl border border-border bg-card flex flex-col h-[200px] items-center justify-center text-muted-foreground">
         <Bell className="h-8 w-8 mb-2 opacity-20" />
-        <p className="text-sm">No hay alertas activas</p>
+        <p className="text-sm">No hay alertas recientes</p>
       </div>
     );
   }
@@ -40,12 +46,12 @@ export function AlertsPanel({ alerts }: Props) {
           <h3 className="text-[14px] font-semibold tracking-tight">Alertas Activas</h3>
         </div>
         <span className="text-[11px] font-medium bg-brand-danger/20 text-brand-danger px-2 py-0.5 rounded-full">
-          {alerts.length} nuevas
+          {recentAlerts.length} en 24h
         </span>
       </div>
 
       <ul className="flex-1 overflow-y-auto p-2 space-y-1">
-        {alerts.map((alert, i) => {
+        {recentAlerts.map((alert, i) => {
           const cfg = configFor[alert.priority as keyof typeof configFor] ?? configFor.BAJA;
           const Icon = cfg.Icon;
           return (

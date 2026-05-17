@@ -5,6 +5,7 @@ interface HealthData {
   status: "ok" | "error" | "degraded";
   services: {
     database: "up" | "down";
+    llm_api?: "up" | "down";
   };
   timestamp: string;
 }
