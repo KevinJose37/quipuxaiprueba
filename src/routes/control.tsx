@@ -195,9 +195,9 @@ function ControlPage() {
                     <td className="px-3 py-1.5">
                       <input
                         type="date"
-                        defaultValue={item.fecha_entrega_contabilidad}
+                        defaultValue={item.fecha_entrega_contabilidad ? item.fecha_entrega_contabilidad.slice(0, 10) : ""}
                         onBlur={(e) => {
-                          if (e.target.value !== item.fecha_entrega_contabilidad) {
+                          if (e.target.value !== item.fecha_entrega_contabilidad?.slice(0, 10)) {
                             updateField(item, "fecha_entrega_contabilidad", e.target.value);
                           }
                         }}
@@ -234,26 +234,21 @@ function ControlPage() {
                     {/* No. Factura — solo lectura */}
                     <td className="px-3 py-2.5 font-mono text-[12px]">{item.numero_factura}</td>
 
-                    {/* Forma de pago — editable */}
+                    {/* Forma de pago — solo lectura */}
                     <td className="px-3 py-1.5">
-                      <input
-                        type="text"
-                        defaultValue={item.forma_pago}
-                        onBlur={(e) => {
-                          if (e.target.value !== item.forma_pago) {
-                            updateField(item, "forma_pago", e.target.value);
-                          }
-                        }}
-                        className="w-full h-8 px-2 rounded-md bg-secondary/40 border border-transparent text-sm focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-ring transition"
-                        placeholder="—"
-                      />
+                      <div className="w-full h-8 px-2 flex items-center rounded-md bg-secondary/20 border border-transparent text-sm text-muted-foreground cursor-not-allowed truncate" title={item.forma_pago}>
+                        {item.forma_pago || "—"}
+                      </div>
                     </td>
 
                     {/* Acuse de recibido — boolean toggle */}
                     <td className="px-3 py-2.5 text-center">
                       <button
+                        disabled={item.forma_pago === 'CONTADO'}
                         onClick={() => updateField(item, "acuso_recibido", !item.acuso_recibido)}
-                        className={`inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${
+                        className={`inline-flex h-5 w-9 shrink-0 items-center rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${
+                          item.forma_pago === 'CONTADO' ? "opacity-40 cursor-not-allowed" : "cursor-pointer"
+                        } ${
                           item.acuso_recibido ? "bg-brand-turquoise" : "bg-secondary"
                         }`}
                       >
@@ -268,8 +263,11 @@ function ControlPage() {
                     {/* Recibo de bien y/o servicio — boolean toggle */}
                     <td className="px-3 py-2.5 text-center">
                       <button
+                        disabled={item.forma_pago === 'CONTADO'}
                         onClick={() => updateField(item, "recibido_bien_servicio", !item.recibido_bien_servicio)}
-                        className={`inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${
+                        className={`inline-flex h-5 w-9 shrink-0 items-center rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${
+                          item.forma_pago === 'CONTADO' ? "opacity-40 cursor-not-allowed" : "cursor-pointer"
+                        } ${
                           item.recibido_bien_servicio ? "bg-brand-turquoise" : "bg-secondary"
                         }`}
                       >
@@ -284,8 +282,11 @@ function ControlPage() {
                     {/* Aceptación expresa — boolean toggle */}
                     <td className="px-3 py-2.5 text-center">
                       <button
+                        disabled={item.forma_pago === 'CONTADO'}
                         onClick={() => updateField(item, "aceptacion_empresa", !item.aceptacion_empresa)}
-                        className={`inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${
+                        className={`inline-flex h-5 w-9 shrink-0 items-center rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${
+                          item.forma_pago === 'CONTADO' ? "opacity-40 cursor-not-allowed" : "cursor-pointer"
+                        } ${
                           item.aceptacion_empresa ? "bg-brand-turquoise" : "bg-secondary"
                         }`}
                       >
