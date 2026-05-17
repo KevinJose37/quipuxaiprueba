@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { FileCheck2, FileX2, FileText, Timer, Bot, Building2 } from "lucide-react";
-import { Sidebar } from "@/components/dashboard/Sidebar";
-import { Header } from "@/components/dashboard/Header";
+import { PageShell } from "@/components/dashboard/PageShell";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import { FlowPipeline } from "@/components/dashboard/FlowPipeline";
 import { DocTypePie, ErrorHeatmap, ProviderBars, TrendLine } from "@/components/dashboard/Charts";
@@ -46,65 +45,52 @@ function Index() {
   const alerts = data?.alerts ?? [];
 
   return (
-    <div className="flex min-h-screen w-full bg-background text-foreground">
-      <Sidebar />
-      <div className="flex-1 min-w-0 flex flex-col">
-        <Header />
-        <main className="flex-1 p-6 lg:p-8 space-y-6 overflow-x-hidden">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
-            <div>
-              <h1 className="text-[26px] font-semibold tracking-tight">Operaciones de facturación</h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Monitoreo del pipeline automatizado · QUIPUX AI · {new Date().toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" })}
-              </p>
-            </div>
+    <PageShell
+      title="Operaciones de facturación"
+      subtitle={`Monitoreo del pipeline automatizado · QUIPUX AI · ${new Date().toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" })}`}
+    >
+      {/* KPI Cards */}
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        {isLoading
+          ? Array.from({ length: 6 }, (_, i) => <KpiCardLoader key={i} />)
+          : kpis.map((k) => (
+              <KpiCard
+                key={k.key}
+                label={k.label}
+                value={k.value}
+                delta={k.delta}
+                spark={[...k.spark]}
+                Icon={kpiIcons[k.key as keyof typeof kpiIcons]}
+                color={(k as { color?: string }).color ?? "turquoise"}
+              />
+            ))}
+      </section>
 
+      {/* Main content grid */}
+      <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="xl:col-span-2 space-y-6">
+          {isLoading ? <CardLoader className="h-[280px]" /> : <FlowPipeline stages={flowStages} indicators={flowIndicators} />}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {isLoading ? <CardLoader className="h-[300px]" /> : <ProviderBars data={providerData} />}
+            {isLoading ? <CardLoader className="h-[300px]" /> : <DocTypePie data={docTypeData} />}
           </div>
 
-          {/* KPI Cards */}
-          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-            {isLoading
-              ? Array.from({ length: 6 }, (_, i) => <KpiCardLoader key={i} />)
-              : kpis.map((k) => (
-                  <KpiCard
-                    key={k.key}
-                    label={k.label}
-                    value={k.value}
-                    delta={k.delta}
-                    spark={[...k.spark]}
-                    Icon={kpiIcons[k.key as keyof typeof kpiIcons]}
-                    color={(k as { color?: string }).color ?? "turquoise"}
-                  />
-                ))}
-          </section>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {isLoading ? <CardLoader className="h-[300px]" /> : <TrendLine data={trendData} />}
+            {isLoading ? <CardLoader className="h-[300px]" /> : <ErrorHeatmap data={heatmapData} />}
+          </div>
 
-          {/* Main content grid */}
-          <section className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            <div className="xl:col-span-2 space-y-6">
-              {isLoading ? <CardLoader className="h-[280px]" /> : <FlowPipeline stages={flowStages} indicators={flowIndicators} />}
+          {isLoading ? <TableCardLoader className="h-[420px]" /> : <InvoicesTable data={invoices} />}
+        </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {isLoading ? <CardLoader className="h-[300px]" /> : <ProviderBars data={providerData} />}
-                {isLoading ? <CardLoader className="h-[300px]" /> : <DocTypePie data={docTypeData} />}
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {isLoading ? <CardLoader className="h-[300px]" /> : <TrendLine data={trendData} />}
-                {isLoading ? <CardLoader className="h-[300px]" /> : <ErrorHeatmap data={heatmapData} />}
-              </div>
-
-              {isLoading ? <TableCardLoader className="h-[420px]" /> : <InvoicesTable data={invoices} />}
-            </div>
-
-            <div className="xl:col-span-1">
-              <div className="xl:sticky xl:top-20 space-y-6">
-                {isLoading ? <CardLoader className="h-[300px]" /> : <AlertsPanel alerts={alerts} />}
-                {isLoading ? <CardLoader className="h-[520px]" /> : <ActivityPanel alertasDian={alertasDian} eventsPerMin={eventsPerMin} />}
-              </div>
-            </div>
-          </section>
-        </main>
-      </div>
-    </div>
+        <div className="xl:col-span-1">
+          <div className="xl:sticky xl:top-20 space-y-6">
+            {isLoading ? <CardLoader className="h-[300px]" /> : <AlertsPanel alerts={alerts} />}
+            {isLoading ? <CardLoader className="h-[520px]" /> : <ActivityPanel alertasDian={alertasDian} eventsPerMin={eventsPerMin} />}
+          </div>
+        </div>
+      </section>
+    </PageShell>
   );
 }
