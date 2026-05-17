@@ -1,3 +1,5 @@
+import { Link } from "@tanstack/react-router";
+
 const statusStyles: Record<string, string> = {
   validada: "bg-[oklch(0.81_0.09_207/15%)] text-brand-turquoise border-[oklch(0.81_0.09_207/30%)]",
   pendiente: "bg-[oklch(0.92_0.18_110/15%)] text-brand-lime border-[oklch(0.92_0.18_110/30%)]",
@@ -33,7 +35,7 @@ export function InvoicesTable({ data }: Props) {
           <h3 className="text-[15px] font-semibold tracking-tight">Últimas facturas procesadas</h3>
           <p className="text-xs text-muted-foreground mt-0.5">Pipeline en vivo · actualizado hace segundos</p>
         </div>
-        <button className="text-xs text-primary font-medium hover:underline">Ver todas →</button>
+        <Link to="/facturas" className="text-xs text-primary font-medium hover:underline">Ver todas →</Link>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">

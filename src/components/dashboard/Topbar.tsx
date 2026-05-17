@@ -191,12 +191,6 @@ export function Topbar() {
 
           {/* ── Right: Global controls ── */}
           <div className="flex items-center gap-2 shrink-0">
-            {/* Date filter – hidden on mobile */}
-            <button className="hidden md:inline-flex items-center gap-2 h-9 px-3 rounded-lg border border-border bg-secondary/60 text-sm text-foreground hover:bg-secondary transition">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span className="hidden xl:inline">Últimos 7 días</span>
-            </button>
-
             {/* System status with activity tooltip */}
             <TooltipProvider delayDuration={200}>
               <Tooltip>
