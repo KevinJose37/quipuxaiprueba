@@ -40,10 +40,17 @@ interface DashboardData {
   alerts: AlertItem[];
 }
 
-export function useDashboard() {
+export function useDashboard(fechaInicio?: string, fechaFin?: string) {
+  const query = new URLSearchParams();
+  if (fechaInicio) query.append('fecha_inicio', fechaInicio);
+  if (fechaFin) query.append('fecha_fin', fechaFin);
+  
+  const queryString = query.toString();
+  const url = queryString ? `/api/dashboard?${queryString}` : "/api/dashboard";
+
   return useQuery<DashboardData>({
-    queryKey: ["dashboard"],
-    queryFn: () => fetchApi<DashboardData>("/api/dashboard"),
+    queryKey: ["dashboard", fechaInicio, fechaFin],
+    queryFn: () => fetchApi<DashboardData>(url),
     refetchInterval: 30_000,
   });
 }

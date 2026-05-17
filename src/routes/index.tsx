@@ -37,7 +37,44 @@ const kpiIcons = {
 } as const;
 
 function Index() {
-  const { data, isLoading } = useDashboard();
+  const [period, setPeriod] = useState("Últimos 7 días");
+
+  // Calcular fechas basadas en el periodo seleccionado
+  const getDates = (p: string) => {
+    const today = new Date();
+    let start = new Date();
+    let end = new Date();
+    
+    switch(p) {
+      case "Hoy":
+        // El default ya es hoy
+        break;
+      case "Últimos 7 días":
+        start.setDate(today.getDate() - 7);
+        break;
+      case "Este mes":
+        start.setDate(1);
+        break;
+      case "Mes anterior":
+        start.setMonth(today.getMonth() - 1);
+        start.setDate(1);
+        end = new Date(today.getFullYear(), today.getMonth(), 0);
+        break;
+      case "Últimos 3 meses":
+        start.setMonth(today.getMonth() - 3);
+        break;
+      case "Año a la fecha":
+        start.setMonth(0, 1);
+        break;
+    }
+    return {
+      fechaInicio: start.toISOString().split('T')[0],
+      fechaFin: end.toISOString().split('T')[0],
+    };
+  };
+
+  const { fechaInicio, fechaFin } = getDates(period);
+  const { data, isLoading } = useDashboard(fechaInicio, fechaFin);
 
   const kpis = data?.kpis ?? [];
   const flowStages = data?.flow_stages ?? [];
@@ -51,7 +88,6 @@ function Index() {
   const eventsPerMin = data?.events_per_min ?? { events_per_min: 0, capacity_pct: 0 };
   const alerts = data?.alerts ?? [];
 
-  const [period, setPeriod] = useState("Últimos 7 días");
   const periods = [
     "Hoy",
     "Últimos 7 días",
