@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Download, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { Download, ChevronLeft, ChevronRight, Search, Loader2 } from "lucide-react";
 import { PageShell } from "@/components/dashboard/PageShell";
 import { useControl, useUpdateControl } from "@/hooks/use-control";
 import { useUsuariosBasico } from "@/hooks/use-usuarios";
@@ -37,6 +37,7 @@ function ControlPage() {
   const [appliedInicio, setAppliedInicio] = useState(defaults.start);
   const [appliedFin, setAppliedFin] = useState(defaults.end);
   const [page, setPage] = useState(1);
+  const [downloading, setDownloading] = useState<Record<number, boolean>>({});
 
   const { data, isLoading } = useControl(appliedInicio, appliedFin, page, 20);
   const mutation = useUpdateControl();
@@ -62,6 +63,38 @@ function ControlPage() {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+  };
+
+  const handleDownloadPaquete = async (id_factura: number, numero_factura: string) => {
+    setDownloading((prev) => ({ ...prev, [id_factura]: true }));
+    try {
+      const token = localStorage.getItem("token");
+      const headers: HeadersInit = {};
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      const res = await fetch(`${API_BASE}/api/control/descargar-paquete?id_factura=${id_factura}`, {
+        headers,
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${numero_factura}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading package:", error);
+      alert("El paquete no está disponible o hubo un error en la descarga.");
+    } finally {
+      setDownloading((prev) => ({ ...prev, [id_factura]: false }));
+    }
   };
 
   /** Actualiza un campo inline y persiste inmediatamente. */
@@ -176,6 +209,7 @@ function ControlPage() {
                   <th className="text-center font-medium px-3 py-3 whitespace-nowrap">Recibo bien/serv. (032)</th>
                   <th className="text-center font-medium px-3 py-3 whitespace-nowrap">Aceptación expresa (033)</th>
                   <th className="text-left font-medium px-3 py-3 whitespace-nowrap">Observaciones</th>
+                  <th className="text-center font-medium px-3 py-3 whitespace-nowrap">Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -311,6 +345,22 @@ function ControlPage() {
                         className="w-full h-8 px-2 rounded-md bg-secondary/40 border border-transparent text-sm focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-ring transition min-w-[140px]"
                         placeholder="—"
                       />
+                    </td>
+
+                    {/* Acciones */}
+                    <td className="px-3 py-1.5 text-center">
+                      <button
+                        onClick={() => handleDownloadPaquete(item.id_factura, item.numero_factura)}
+                        disabled={downloading[item.id_factura]}
+                        title="Descargar paquete (XML/PDF)"
+                        className="h-8 w-8 inline-flex items-center justify-center rounded-md border border-border bg-secondary/40 hover:bg-secondary transition disabled:opacity-50"
+                      >
+                        {downloading[item.id_factura] ? (
+                          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                        ) : (
+                          <Download className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </button>
                     </td>
                   </tr>
                 ))}

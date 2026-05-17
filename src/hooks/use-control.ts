@@ -3,6 +3,7 @@ import { fetchApi, patchApi } from "@/lib/api";
 
 export interface ControlItem {
   id_control: number;
+  id_factura: number;
   fecha_admision_proveedor: string;
   medio_recepcion: string;
   fecha_entrega_contabilidad: string;
