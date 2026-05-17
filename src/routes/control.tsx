@@ -1,7 +1,8 @@
 import { useState, useCallback } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Download, ChevronLeft, ChevronRight, Search, Loader2 } from "lucide-react";
+import { Download, ChevronLeft, ChevronRight, Search, Loader2, AlertTriangle, Check } from "lucide-react";
 import { PageShell } from "@/components/dashboard/PageShell";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { useControl, useUpdateControl } from "@/hooks/use-control";
 import { useUsuariosBasico } from "@/hooks/use-usuarios";
 import { StatCardLoader, TableCardLoader } from "@/components/dashboard/CardLoader";
@@ -38,6 +39,9 @@ function ControlPage() {
   const [appliedFin, setAppliedFin] = useState(defaults.end);
   const [page, setPage] = useState(1);
   const [downloading, setDownloading] = useState<Record<number, boolean>>({});
+  const [downloaded, setDownloaded] = useState<Record<number, boolean>>({});
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorInvoice, setErrorInvoice] = useState<string | null>(null);
 
   const { data, isLoading } = useControl(appliedInicio, appliedFin, page, 20);
   const mutation = useUpdateControl();
@@ -89,9 +93,12 @@ function ControlPage() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+      
+      setDownloaded((prev) => ({ ...prev, [id_factura]: true }));
     } catch (error) {
       console.error("Error downloading package:", error);
-      alert("El paquete no está disponible o hubo un error en la descarga.");
+      setErrorInvoice(numero_factura);
+      setErrorModalOpen(true);
     } finally {
       setDownloading((prev) => ({ ...prev, [id_factura]: false }));
     }
@@ -353,12 +360,18 @@ function ControlPage() {
                         onClick={() => handleDownloadPaquete(item.id_factura, item.numero_factura)}
                         disabled={downloading[item.id_factura]}
                         title="Descargar paquete (XML/PDF)"
-                        className="h-8 w-8 inline-flex items-center justify-center rounded-md border border-border bg-secondary/40 hover:bg-secondary transition disabled:opacity-50"
+                        className={`h-8 w-8 inline-flex items-center justify-center rounded-md border border-border transition disabled:opacity-50 ${
+                          downloaded[item.id_factura]
+                            ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/20"
+                            : "bg-secondary/40 hover:bg-emerald-500/10 hover:text-emerald-500 hover:border-emerald-500/30"
+                        }`}
                       >
                         {downloading[item.id_factura] ? (
                           <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                        ) : downloaded[item.id_factura] ? (
+                          <Check className="h-4 w-4" />
                         ) : (
-                          <Download className="h-4 w-4 text-muted-foreground" />
+                          <Download className="h-4 w-4 text-muted-foreground hover:text-emerald-500" />
                         )}
                       </button>
                     </td>
@@ -405,6 +418,31 @@ function ControlPage() {
           )}
         </div>
       )}
+
+      {/* Error Modal */}
+      <Dialog open={errorModalOpen} onOpenChange={setErrorModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="flex items-center gap-2 text-destructive mb-2">
+              <AlertTriangle className="h-5 w-5" />
+              <DialogTitle>Paquete no disponible</DialogTitle>
+            </div>
+            <DialogDescription className="text-sm leading-relaxed">
+              No se pudo descargar el paquete de la factura <strong>{errorInvoice}</strong>. 
+              <br /><br />
+              Esto generalmente ocurre cuando el archivo ZIP aún no ha sido generado o el archivo original no fue almacenado correctamente en el repositorio S3 durante el proceso de ingesta.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4">
+            <button
+              onClick={() => setErrorModalOpen(false)}
+              className="h-9 px-4 rounded-lg bg-secondary text-foreground text-sm font-medium hover:bg-secondary/80 transition"
+            >
+              Entendido
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </PageShell>
   );
 }
