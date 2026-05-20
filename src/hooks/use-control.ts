@@ -14,7 +14,7 @@ export interface ControlItem {
   forma_pago: string;
   acuso_recibido: boolean;
   recibido_bien_servicio: boolean;
-  aceptacion_empresa: boolean;
+  aceptacion_expresa: boolean;
   observaciones_entrega: string;
   eventos_dian_notif: string;
 }
@@ -37,7 +37,7 @@ interface ControlUpdateBody {
   forma_pago?: string | null;
   acuso_recibido?: boolean;
   recibido_bien_servicio?: boolean;
-  aceptacion_empresa?: boolean;
+  aceptacion_expresa?: boolean;
   observaciones_entrega?: string | null;
   eventos_dian_notif?: string | null;
 }

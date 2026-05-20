@@ -38,7 +38,7 @@ export function FlowPipeline({ stages, indicators }: Props) {
       </div>
 
       <div className="relative">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-2 relative z-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-2 relative z-10">
           {stages.map((stage, idx) => {
             const Icon = iconFor[stage.id] ?? CheckCircle2;
             const warn = stage.status === "warn";

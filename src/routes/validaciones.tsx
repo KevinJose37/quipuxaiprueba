@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ShieldCheck, CheckCircle2, AlertTriangle } from "lucide-react";
 import { PageShell } from "@/components/dashboard/PageShell";
 import { useValidaciones } from "@/hooks/use-validaciones";
+import { useAuth } from "@/hooks/use-auth";
 import { StatCardLoader, CardLoader } from "@/components/dashboard/CardLoader";
 
 export const Route = createFileRoute("/validaciones")({
@@ -21,10 +22,25 @@ const sevColor: Record<string, string> = {
 };
 
 function ValidacionesPage() {
+  const { user } = useAuth();
   const { data, isLoading } = useValidaciones();
 
   const validationRules = data?.rules ?? [];
   const st = data?.stats ?? { reglas_activas: 0, total_passed: 0, total_failed: 0, tasa_exito: 0 };
+
+  if (user?.rol !== "admin") {
+    return (
+      <PageShell title="Acceso Restringido" subtitle="Validaciones">
+        <div className="rounded-xl border border-brand-orange/30 bg-brand-orange/5 p-6 text-center max-w-xl mx-auto my-12" style={{ boxShadow: "var(--shadow-card)" }}>
+          <ShieldCheck className="h-12 w-12 text-brand-orange mx-auto mb-4 animate-pulse-dot" />
+          <h3 className="text-lg font-semibold text-foreground">No tienes permisos para ver esta sección</h3>
+          <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+            Esta pantalla de reglas y validaciones del pipeline automático está reservada únicamente para usuarios con rol de Administrador.
+          </p>
+        </div>
+      </PageShell>
+    );
+  }
 
   return (
     <PageShell title="Validaciones" subtitle="Motor de reglas · IA + verificación documental">

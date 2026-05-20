@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Search, Download } from "lucide-react";
+import { Search, Download, ShieldCheck } from "lucide-react";
 import { PageShell } from "@/components/dashboard/PageShell";
 import { useLogs } from "@/hooks/use-logs";
+import { useAuth } from "@/hooks/use-auth";
 import { StatCardLoader, TableCardLoader } from "@/components/dashboard/CardLoader";
 
 export const Route = createFileRoute("/logs")({
@@ -23,6 +24,7 @@ const levelStyle: Record<string, string> = {
 };
 
 function LogsPage() {
+  const { user } = useAuth();
   const [busqueda, setBusqueda] = useState("");
   const [nivel, setNivel] = useState("Todos");
   
@@ -32,6 +34,20 @@ function LogsPage() {
 
   const logs = data?.logs ?? [];
   const st = data?.stats ?? { total_24h: 0, info: 0, warn: 0, error: 0 };
+
+  if (user?.rol !== "admin") {
+    return (
+      <PageShell title="Acceso Restringido" subtitle="Logs del sistema">
+        <div className="rounded-xl border border-brand-orange/30 bg-brand-orange/5 p-6 text-center max-w-xl mx-auto my-12" style={{ boxShadow: "var(--shadow-card)" }}>
+          <ShieldCheck className="h-12 w-12 text-brand-orange mx-auto mb-4 animate-pulse-dot" />
+          <h3 className="text-lg font-semibold text-foreground">No tienes permisos para ver esta sección</h3>
+          <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+            Esta pantalla de registro técnico y logs del sistema está reservada únicamente para usuarios con rol de Administrador.
+          </p>
+        </div>
+      </PageShell>
+    );
+  }
 
   return (
     <PageShell

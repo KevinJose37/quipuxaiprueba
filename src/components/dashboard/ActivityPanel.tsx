@@ -1,4 +1,5 @@
 import { AlertTriangle, Bell } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import type { EventsPerMin, AlertasDianData } from "@/hooks/use-dashboard";
 
 interface Props {
@@ -28,34 +29,40 @@ export function ActivityPanel({ alertasDian, eventsPerMin }: Props) {
         ) : (
           alertas.map((a, i) => {
             return (
-              <li key={i} className="flex flex-col gap-1.5 p-3 rounded-lg bg-secondary/20 border border-border/50 hover:bg-secondary/40 transition animate-fade-in-up" style={{ animationDelay: `${i * 40}ms` }}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="h-6 w-6 rounded-md flex items-center justify-center shrink-0 bg-brand-orange/10 text-brand-orange">
-                      <AlertTriangle className="h-3.5 w-3.5" />
-                    </div>
-                    <span className="text-[13px] font-medium text-foreground">{a.label}</span>
-                  </div>
-                  <span className="font-semibold text-[14px] tabular-nums text-primary">
-                    {a.total}
-                  </span>
-                </div>
-                
-                {/* Opcional: Mostrar desglose si hay detalle */}
-                {Object.keys(a.detalle || {}).length > 0 && (
-                  <div className="mt-2 pl-8 pr-2 space-y-1 text-[11px] text-muted-foreground">
-                    {Object.entries(a.detalle).map(([anio, meses]) => (
-                      <div key={anio} className="flex justify-between items-start">
-                        <span className="font-medium text-foreground/70">{anio}</span>
-                        <div className="flex flex-col items-end">
-                          {Object.entries(meses as Record<string, number>).map(([mes, total]) => (
-                            <span key={mes}>{mes}: {total}</span>
-                          ))}
-                        </div>
+              <li key={i} className="animate-fade-in-up" style={{ animationDelay: `${i * 40}ms` }}>
+                <Link
+                  to="/facturas"
+                  search={{ busqueda: a.key }}
+                  className="flex flex-col gap-1.5 p-3 rounded-lg bg-secondary/20 border border-border/50 hover:bg-secondary/40 hover:border-primary/20 transition block cursor-pointer group"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="h-6 w-6 rounded-md flex items-center justify-center shrink-0 bg-brand-orange/10 text-brand-orange group-hover:bg-brand-orange/20 transition-all">
+                        <AlertTriangle className="h-3.5 w-3.5" />
                       </div>
-                    ))}
+                      <span className="text-[13px] font-medium text-foreground group-hover:text-primary transition-colors">{a.label}</span>
+                    </div>
+                    <span className="font-semibold text-[14px] tabular-nums text-primary group-hover:scale-105 transition-transform">
+                      {a.total}
+                    </span>
                   </div>
-                )}
+                  
+                  {/* Opcional: Mostrar desglose si hay detalle */}
+                  {Object.keys(a.detalle || {}).length > 0 && (
+                    <div className="mt-2 pl-8 pr-2 space-y-1 text-[11px] text-muted-foreground">
+                      {Object.entries(a.detalle).map(([anio, meses]) => (
+                        <div key={anio} className="flex justify-between items-start">
+                          <span className="font-medium text-foreground/70">{anio}</span>
+                          <div className="flex flex-col items-end">
+                            {Object.entries(meses as Record<string, number>).map(([mes, total]) => (
+                              <span key={mes}>{mes}: {total}</span>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </Link>
               </li>
             );
           })

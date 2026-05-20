@@ -28,16 +28,17 @@ export interface AlertasDianData {
 
 interface DashboardData {
   kpis: Array<{ key: string; label: string; value: string; delta: number; spark: number[]; color: string }>;
-  flow_stages: Array<{ id: string; label: string; count: number; status: string }>;
-  flow_indicators: FlowIndicators;
   provider_data: Array<{ name: string; facturas: number }>;
-  doc_type_data: Array<{ name: string; value: number }>;
-  trend_data: Array<{ day: string; procesadas: number; validadas: number }>;
-  heatmap_data: Array<{ day: string; hour: number; value: number }>;
+  trend_data: Array<{ day: string; recibo: number; compra: number; procesamiento: number }>;
   invoices: Array<{ id: string; provider: string; type: string; status: string; date: string; time: string }>;
   alertas_dian: AlertasDianData;
   events_per_min: EventsPerMin;
   alerts: AlertItem[];
+  valor_proveedor_data: Array<{ name: string; value: number }>;
+  forma_pago_data: Array<{ name: string; value: number }>;
+  medio_pago_data: Array<{ name: string; value: number }>;
+  eventos_dian_data: Array<{ name: string; value: number }>;
+  impuestos_data: Array<{ name: string; value: number }>;
 }
 
 export function useDashboard(fechaInicio?: string, fechaFin?: string) {

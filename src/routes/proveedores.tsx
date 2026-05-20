@@ -35,7 +35,7 @@ function ProveedoresPage() {
   const filteredProviders = useMemo(() => {
     if (!busqueda) return providers;
     const q = busqueda.toLowerCase();
-    return providers.filter(p => p.name.toLowerCase().includes(q) || p.cuit.toLowerCase().includes(q));
+    return providers.filter(p => p.name.toLowerCase().includes(q) || p.nit.toLowerCase().includes(q));
   }, [busqueda, providers]);
   const st = data?.stats ?? { total: 0, activos: 0, tasa_promedio: 0 };
 
@@ -70,7 +70,7 @@ function ProveedoresPage() {
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
-                placeholder="Buscar proveedor o CUIT…"
+                placeholder="Buscar proveedor o NIT…"
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
                 className="w-full h-9 pl-10 pr-3 rounded-lg bg-secondary/60 border border-border text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
@@ -82,7 +82,7 @@ function ProveedoresPage() {
               <thead>
                 <tr className="text-[11px] uppercase tracking-wider text-muted-foreground bg-secondary/30">
                   <th className="text-left font-medium px-5 py-3">Proveedor</th>
-                  <th className="text-left font-medium px-3 py-3">CUIT</th>
+                  <th className="text-left font-medium px-3 py-3">NIT</th>
                   <th className="text-right font-medium px-3 py-3">Facturas</th>
                   <th className="text-left font-medium px-3 py-3">Validación</th>
                   <th className="text-left font-medium px-3 py-3">Última sync</th>
@@ -91,7 +91,7 @@ function ProveedoresPage() {
               </thead>
               <tbody>
                 {filteredProviders.map((p, i) => (
-                  <tr key={p.cuit} className="border-t border-border/60 hover:bg-secondary/30 transition animate-fade-in-up" style={{ animationDelay: `${i * 30}ms` }}>
+                  <tr key={p.nit} className="border-t border-border/60 hover:bg-secondary/30 transition animate-fade-in-up" style={{ animationDelay: `${i * 30}ms` }}>
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-2.5">
                         <div className="h-8 w-8 rounded-lg bg-secondary/80 border border-border flex items-center justify-center">
@@ -100,7 +100,7 @@ function ProveedoresPage() {
                         <span className="font-medium">{p.name}</span>
                       </div>
                     </td>
-                    <td className="px-3 py-3.5 font-mono text-[12px] text-muted-foreground">{p.cuit}</td>
+                    <td className="px-3 py-3.5 font-mono text-[12px] text-muted-foreground">{p.nit}</td>
                     <td className="px-3 py-3.5 text-right tabular-nums">{p.invoices}</td>
                     <td className="px-3 py-3.5">
                       <div className="flex items-center gap-2">

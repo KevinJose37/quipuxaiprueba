@@ -72,11 +72,13 @@ export function Topbar() {
 
   const epm = data?.events_per_min;
 
-  // Role-based nav: "Usuarios" only for admin
+  // Role-based nav: "Usuarios", "Validaciones", "Logs" only for admin
   const items =
     user?.rol === "admin"
       ? [...baseItems, { icon: UserCog, label: "Usuarios", to: "/usuarios" as const }]
-      : baseItems;
+      : baseItems.filter(
+          (item) => item.to !== "/validaciones" && item.to !== "/logs"
+        );
 
   /* ---------- helpers (from old Header) ---------- */
 

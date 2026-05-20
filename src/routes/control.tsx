@@ -42,6 +42,7 @@ function ControlPage() {
   const [downloaded, setDownloaded] = useState<Record<number, boolean>>({});
   const [errorModalOpen, setErrorModalOpen] = useState(false);
   const [errorInvoice, setErrorInvoice] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
 
   const { data, isLoading } = useControl(appliedInicio, appliedFin, page, 20);
   const mutation = useUpdateControl();
@@ -56,17 +57,39 @@ function ControlPage() {
     setPage(1);
   };
 
-  const handleExport = () => {
-    const params = new URLSearchParams();
-    if (appliedInicio) params.set("fecha_inicio", appliedInicio);
-    if (appliedFin) params.set("fecha_fin", appliedFin);
-    const url = `${API_BASE}/api/exports/excel?${params.toString()}`;
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "control_facturas.xlsx";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const params = new URLSearchParams();
+      if (appliedInicio) params.set("fecha_inicio", appliedInicio);
+      if (appliedFin) params.set("fecha_fin", appliedFin);
+      
+      const token = localStorage.getItem("token");
+      const headers: HeadersInit = {};
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      const res = await fetch(`${API_BASE}/api/exports/excel?${params.toString()}`, {
+        headers,
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "control_facturas.xlsx";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+    } finally {
+      setExporting(false);
+    }
   };
 
   const handleDownloadPaquete = async (id_factura: number, numero_factura: string) => {
@@ -115,7 +138,7 @@ function ControlPage() {
           forma_pago: item.forma_pago || null,
           acuso_recibido: item.acuso_recibido,
           recibido_bien_servicio: item.recibido_bien_servicio,
-          aceptacion_empresa: item.aceptacion_empresa,
+          aceptacion_expresa: item.aceptacion_expresa,
           observaciones_entrega: item.observaciones_entrega || null,
           eventos_dian_notif: item.eventos_dian_notif || null,
           [field]: value,
@@ -157,9 +180,14 @@ function ControlPage() {
       <button
         id="control-exportar-excel"
         onClick={handleExport}
-        className="h-9 px-4 rounded-lg border border-border bg-secondary/60 text-sm font-medium flex items-center gap-1.5 hover:bg-secondary transition"
+        disabled={exporting}
+        className="h-9 px-4 rounded-lg border border-border bg-secondary/60 text-sm font-medium flex items-center gap-1.5 hover:bg-secondary transition disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        <Download className="h-3.5 w-3.5" />
+        {exporting ? (
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+        ) : (
+          <Download className="h-3.5 w-3.5" />
+        )}
         Exportar a Excel
       </button>
     </>
@@ -324,16 +352,16 @@ function ControlPage() {
                     <td className="px-3 py-2.5 text-center">
                       <button
                         disabled={item.forma_pago === 'CONTADO'}
-                        onClick={() => updateField(item, "aceptacion_empresa", !item.aceptacion_empresa)}
+                        onClick={() => updateField(item, "aceptacion_expresa", !item.aceptacion_expresa)}
                         className={`inline-flex h-5 w-9 shrink-0 items-center rounded-full border-2 border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${
                           item.forma_pago === 'CONTADO' ? "opacity-40 cursor-not-allowed" : "cursor-pointer"
                         } ${
-                          item.aceptacion_empresa ? "bg-brand-turquoise" : "bg-secondary"
+                          item.aceptacion_expresa ? "bg-brand-turquoise" : "bg-secondary"
                         }`}
                       >
                         <span
                           className={`pointer-events-none block h-4 w-4 rounded-full bg-white shadow-lg ring-0 transition-transform ${
-                            item.aceptacion_empresa ? "translate-x-4" : "translate-x-0"
+                            item.aceptacion_expresa ? "translate-x-4" : "translate-x-0"
                           }`}
                         />
                       </button>
